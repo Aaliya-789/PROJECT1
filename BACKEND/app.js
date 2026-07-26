@@ -3,6 +3,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
+const complaintRoutes = require("./routes/complaintRoutes");
+const departmentRoutes = require("./routes/departmentRoutes");
 const app = express();
 
 // Middlewares
@@ -13,6 +15,8 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/complaints", complaintRoutes);
+app.use("/api/departments", departmentRoutes);
 
 // Default Route
 app.get("/", (req, res) => {
