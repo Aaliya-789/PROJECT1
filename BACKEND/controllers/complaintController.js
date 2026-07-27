@@ -1,13 +1,17 @@
 const Complaint = require("../models/Complaint");
 const Department = require("../models/Department");
+const cloudinary = require("../config/cloudinary");
+
 // ==========================================
 // Create Complaint
 // POST /api/complaints
 // Private (Citizen)
 // ==========================================
-
 const createComplaint = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
+    console.log("CONTENT-TYPE:", req.headers["content-type"]);
     const {
       title,
       description,
@@ -18,7 +22,6 @@ const createComplaint = async (req, res) => {
       address,
     } = req.body;
 
-    // Validate required fields
     if (
       !title ||
       !description ||
@@ -33,7 +36,24 @@ const createComplaint = async (req, res) => {
       });
     }
 
-    // Create complaint
+    // Upload Images to Cloudinary
+    const uploadedImages = [];
+
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const base64 = `data:${file.mimetype};base64,${file.buffer.toString(
+          "base64"
+        )}`;
+
+        const result = await cloudinary.uploader.upload(base64, {
+          folder: "CivicConnect/Complaints",
+        });
+
+        uploadedImages.push(result.secure_url);
+      }
+    }
+
+    // Create Complaint
     const complaint = await Complaint.create({
       title,
       description,
@@ -44,6 +64,7 @@ const createComplaint = async (req, res) => {
         longitude,
       },
       address,
+      images: uploadedImages,
       reportedBy: req.user._id,
     });
 
@@ -66,13 +87,11 @@ const createComplaint = async (req, res) => {
 // Get Logged-in User Complaints
 // GET /api/complaints/my
 // ==========================================
-
 const getMyComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find({
-  reportedBy: req.user._id,
-})
-.sort({ createdAt: -1 });
+      reportedBy: req.user._id,
+    }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -91,13 +110,18 @@ const getMyComplaints = async (req, res) => {
 // Get Complaint by ID
 // GET /api/complaints/:id
 // ==========================================
-
 const getComplaintById = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id)
       .populate("reportedBy", "name email")
-      //.populate("assignedDepartment")
-      //.populate("comments");
+      .populate("assignedDepartment", "departmentName")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "name role",
+        },
+      });
 
     if (!complaint) {
       return res.status(404).json({
@@ -122,7 +146,6 @@ const getComplaintById = async (req, res) => {
 // Get All Complaints (Admin)
 // GET /api/complaints
 // ==========================================
-
 const getAllComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find()
@@ -147,7 +170,6 @@ const getAllComplaints = async (req, res) => {
 // Update Complaint Status
 // PUT /api/complaints/:id/status
 // ==========================================
-
 const updateComplaintStatus = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id);
@@ -159,13 +181,53 @@ const updateComplaintStatus = async (req, res) => {
       });
     }
 
-    complaint.status = req.body.status || complaint.status;
+    // Department Officer Authorization
+    if (req.user.role === "Department") {
+      const department = await Department.findOne({
+        headOfficer: req.user._id,
+      });
+
+      if (!department) {
+        return res.status(404).json({
+          success: false,
+          message: "Department not found",
+        });
+      }
+
+      if (
+        !complaint.assignedDepartment ||
+        complaint.assignedDepartment.toString() !== department._id.toString()
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "You are not authorized to update this complaint",
+        });
+      }
+    }
+
+    const allowedStatuses = [
+      "Submitted",
+      "Under Review",
+      "Assigned",
+      "In Progress",
+      "Resolved",
+      "Rejected",
+    ];
+
+    if (!allowedStatuses.includes(req.body.status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status",
+      });
+    }
+
+    complaint.status = req.body.status;
 
     await complaint.save();
 
     res.status(200).json({
       success: true,
-      message: "Complaint status updated",
+      message: "Complaint status updated successfully",
       complaint,
     });
   } catch (error) {
@@ -175,16 +237,15 @@ const updateComplaintStatus = async (req, res) => {
     });
   }
 };
+
 // ==========================================
 // Assign Complaint to Department (Admin)
 // PUT /api/complaints/:id/assign
 // ==========================================
-
 const assignComplaintToDepartment = async (req, res) => {
   try {
     const { departmentId } = req.body;
 
-    // Check if department is provided
     if (!departmentId) {
       return res.status(400).json({
         success: false,
@@ -192,7 +253,15 @@ const assignComplaintToDepartment = async (req, res) => {
       });
     }
 
-    // Find complaint
+    const department = await Department.findById(departmentId);
+
+    if (!department) {
+      return res.status(404).json({
+        success: false,
+        message: "Department not found",
+      });
+    }
+
     const complaint = await Complaint.findById(req.params.id);
 
     if (!complaint) {
@@ -202,7 +271,6 @@ const assignComplaintToDepartment = async (req, res) => {
       });
     }
 
-    // Assign department
     complaint.assignedDepartment = departmentId;
     complaint.status = "Assigned";
 
@@ -213,7 +281,6 @@ const assignComplaintToDepartment = async (req, res) => {
       message: "Complaint assigned successfully",
       complaint,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -226,7 +293,6 @@ const assignComplaintToDepartment = async (req, res) => {
 // Delete Complaint
 // DELETE /api/complaints/:id
 // ==========================================
-
 const deleteComplaint = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id);

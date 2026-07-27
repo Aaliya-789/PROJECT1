@@ -12,10 +12,16 @@ const {
 
 const { protect } = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 const router = express.Router();
 
 // Citizen Routes
-router.post("/", protect, createComplaint);
+router.post(
+  "/",
+  upload.array("images", 5),
+  protect,
+  createComplaint
+);
 router.get("/my", protect, getMyComplaints);
 
 // Public/Protected Route
