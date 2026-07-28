@@ -11,14 +11,12 @@ const Login = () => {
     role: "Citizen",
   });
 
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,19 +31,15 @@ const Login = () => {
 
     toast.success("Login successful");
 
-
     // Temporary navigation
     if (formData.role === "Citizen") {
-      navigate("/citizen-dashboard");
-    } 
-    else if (formData.role === "Admin") {
-      navigate("/admin-dashboard");
-    } 
-    else {
-      navigate("/department-dashboard");
+      navigate("/citizen/dashboard");
+    } else if (formData.role === "Admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/authority/dashboard");
     }
   };
-
 
   return (
     <div
@@ -61,7 +55,6 @@ const Login = () => {
       px-5
       "
     >
-
       <div
         className="
         bg-white
@@ -72,41 +65,25 @@ const Login = () => {
         max-w-md
         "
       >
-
         {/* Heading */}
         <div className="text-center mb-8">
-
           <h1 className="text-4xl font-bold">
+            <span className="text-[#0F172A]">Civic</span>
 
-            <span className="text-[#0F172A]">
-              Civic
-            </span>
-
-            <span className="text-teal-500">
-              Connect
-            </span>
-
+            <span className="text-teal-500">Connect</span>
           </h1>
-
 
           <p className="text-gray-500 mt-3">
             Login to access civic services
           </p>
-
         </div>
 
-
-
         <form onSubmit={handleSubmit}>
-
-
           {/* Email */}
           <div className="mb-5">
-
             <label className="block text-gray-700 font-medium mb-2">
               Email
             </label>
-
 
             <input
               type="email"
@@ -127,18 +104,13 @@ const Login = () => {
               transition
               "
             />
-
           </div>
-
-
 
           {/* Password */}
           <div className="mb-5">
-
             <label className="block text-gray-700 font-medium mb-2">
               Password
             </label>
-
 
             <input
               type="password"
@@ -159,19 +131,13 @@ const Login = () => {
               transition
               "
             />
-
           </div>
-
-
-
 
           {/* Role */}
           <div className="mb-6">
-
             <label className="block text-gray-700 font-medium mb-2">
               Login As
             </label>
-
 
             <select
               name="role"
@@ -190,28 +156,13 @@ const Login = () => {
               transition
               "
             >
+              <option>Citizen</option>
 
-              <option>
-                Citizen
-              </option>
+              <option>Government Authority</option>
 
-
-              <option>
-                Government Authority
-              </option>
-
-
-              <option>
-                Admin
-              </option>
-
-
+              <option>Admin</option>
             </select>
-
           </div>
-
-
-
 
           {/* Login Button */}
           <button
@@ -230,17 +181,10 @@ const Login = () => {
           >
             Login
           </button>
-
-
         </form>
-
-
-
 
         {/* Links */}
         <div className="text-center mt-6 text-sm">
-
-
           <Link
             to="/forgot-password"
             className="
@@ -251,13 +195,8 @@ const Login = () => {
             Forgot Password?
           </Link>
 
-
-
           <p className="mt-3 text-gray-600">
-
             Don't have an account?
-
-
             <Link
               to="/register"
               className="
@@ -269,20 +208,11 @@ const Login = () => {
             >
               Register
             </Link>
-
-
           </p>
-
-
         </div>
-
-
       </div>
-
-
     </div>
   );
 };
-
 
 export default Login;

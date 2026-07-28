@@ -1,49 +1,101 @@
 import { Routes, Route } from "react-router-dom";
 
-import MainLayout from "./layouts/MainLayout";
+// Layouts
+import CitizenLayout from "./layouts/CitizenLayout";
 
-// Landing Page
-import Home from "./pages/Home";
+// Citizen Pages
+import CitizenDashboard from "./pages/citizen/CitizenDashboard";
+import RaiseComplaint from "./pages/citizen/RaiseComplaint";
+import ComplaintHistory from "./pages/citizen/ComplaintHistory";
+import ComplaintDetails from "./pages/citizen/ComplaintDetails";
+import Notifications from "./pages/citizen/Notifications";
+import Profile from "./pages/citizen/Profile";
 
-// Authentication Pages
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-
-// Error Page
-import NotFound from "./pages/NotFound";
 
 function App() {
   return (
     <Routes>
-      {/* =======================
-          Public Routes
-      ======================== */}
 
+      {/* =========================
+          Citizen Dashboard
+      ========================== */}
       <Route
-        path="/"
+        path="/citizen/dashboard"
         element={
-          <MainLayout>
-            <Home />
-          </MainLayout>
+          <CitizenLayout>
+            <CitizenDashboard />
+          </CitizenLayout>
         }
       />
 
-      {/* =======================
-          Authentication
-      ======================== */}
 
-      <Route path="/login" element={<Login />} />
+      {/* =========================
+          Raise Complaint
+      ========================== */}
+      <Route
+        path="/citizen/raise-complaint"
+        element={
+          <CitizenLayout>
+            <RaiseComplaint />
+          </CitizenLayout>
+        }
+      />
 
-      <Route path="/register" element={<Register />} />
 
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      {/* =========================
+          Complaint History
+      ========================== */}
+      <Route
+        path="/citizen/complaint-history"
+        element={
+          <CitizenLayout>
+            <ComplaintHistory />
+          </CitizenLayout>
+        }
+      />
 
-      {/* =======================
-          404 Page
-      ======================== */}
 
-      <Route path="*" element={<NotFound />} />
+      {/* =========================
+          Complaint Details
+          Example:
+          /citizen/complaint-details/101
+      ========================== */}
+      <Route
+        path="/citizen/complaint-details/:id"
+        element={
+          <CitizenLayout>
+            <ComplaintDetails />
+          </CitizenLayout>
+        }
+      />
+
+
+      {/* =========================
+          Notifications
+      ========================== */}
+      <Route
+        path="/citizen/notifications"
+        element={
+          <CitizenLayout>
+            <Notifications />
+          </CitizenLayout>
+        }
+      />
+
+
+      {/* =========================
+          Profile
+      ========================== */}
+      <Route
+        path="/citizen/profile"
+        element={
+          <CitizenLayout>
+            <Profile />
+          </CitizenLayout>
+        }
+      />
+
+
     </Routes>
   );
 }
