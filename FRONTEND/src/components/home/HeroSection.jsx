@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const HeroSection = () => {
   return (
     <section id="home" className="bg-[#F8FAFC] py-20">
@@ -24,24 +26,75 @@ const HeroSection = () => {
               departments to build cleaner, safer, and smarter cities.
             </p>
 
+            {/* Buttons */}
+
             <div className="mt-10 flex flex-wrap gap-4">
 
-              <button className="bg-[#2A9D8F] hover:bg-[#23867A] text-white px-8 py-4 rounded-lg font-semibold transition duration-300">
-                Report an Issue
-              </button>
+              {/* Report an Issue */}
 
-              <button className="border-2 border-[#1E3A5F] text-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white px-8 py-4 rounded-lg font-semibold transition duration-300">
-                Explore Issues
-              </button>
+              <Link to="/login">
+                <button
+                  className="
+                  bg-[#2A9D8F]
+                  hover:bg-[#23867A]
+                  text-white
+                  px-8
+                  py-4
+                  rounded-lg
+                  font-semibold
+                  transition
+                  duration-300
+                  "
+                >
+                  Report an Issue
+                </button>
+              </Link>
+
+              {/* Explore Issues */}
+
+              <a href="#report-issues">
+                <button
+                  className="
+                  border-2
+                  border-[#1E3A5F]
+                  text-[#1E3A5F]
+                  hover:bg-[#1E3A5F]
+                  hover:text-white
+                  px-8
+                  py-4
+                  rounded-lg
+                  font-semibold
+                  transition
+                  duration-300
+                  "
+                >
+                  Explore Issues
+                </button>
+              </a>
 
             </div>
 
           </div>
 
           {/* Right Side */}
+
           <div className="flex justify-center">
 
-            <div className="w-full max-w-md h-[420px] bg-white rounded-3xl shadow-xl border border-slate-200 flex items-center justify-center">
+            <div
+              className="
+              w-full
+              max-w-md
+              h-[420px]
+              bg-white
+              rounded-3xl
+              shadow-xl
+              border
+              border-slate-200
+              flex
+              items-center
+              justify-center
+              "
+            >
 
               <div className="text-center">
 

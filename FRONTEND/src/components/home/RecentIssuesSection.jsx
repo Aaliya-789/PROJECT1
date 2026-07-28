@@ -47,8 +47,9 @@ const categories = [
 const RecentIssuesSection = () => {
   return (
     <section
-  className="bg-[#F8FAFC] py-24"
->
+      id="report-issues"
+      className="bg-[#F8FAFC] py-24"
+    >
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Heading */}
@@ -72,7 +73,17 @@ const RecentIssuesSection = () => {
 
             <div
               key={index}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 p-8 text-center"
+              className="
+              bg-white
+              rounded-2xl
+              shadow-md
+              hover:shadow-xl
+              hover:-translate-y-2
+              transition-all
+              duration-300
+              p-8
+              text-center
+              "
             >
 
               <div className="text-[#2A9D8F] flex justify-center mb-5">
