@@ -7,6 +7,8 @@ const complaintRoutes = require("./routes/complaintRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 const app = express();
 
 // Middlewares
@@ -21,6 +23,8 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 
 // Default Route

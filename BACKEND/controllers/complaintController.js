@@ -1,5 +1,6 @@
 const Complaint = require("../models/Complaint");
 const Department = require("../models/Department");
+const Notification = require("../models/Notification");
 const cloudinary = require("../config/cloudinary");
 
 // ==========================================
@@ -12,6 +13,7 @@ const createComplaint = async (req, res) => {
     console.log("BODY:", req.body);
     console.log("FILES:", req.files);
     console.log("CONTENT-TYPE:", req.headers["content-type"]);
+
     const {
       title,
       description,
@@ -68,13 +70,25 @@ const createComplaint = async (req, res) => {
       reportedBy: req.user._id,
     });
 
+    // Create Notification
+    console.log("Creating notification...");
+
+    await Notification.create({
+      user: req.user._id,
+      complaint: complaint._id,
+      title: "Complaint Submitted",
+      message: `Your complaint "${complaint.title}" has been submitted successfully.`,
+    });
+
+    console.log("Notification created successfully");
+
     res.status(201).json({
       success: true,
       message: "Complaint submitted successfully",
       complaint,
     });
   } catch (error) {
-    console.error(error);
+    console.error("CREATE COMPLAINT ERROR:", error);
 
     res.status(500).json({
       success: false,
@@ -181,7 +195,6 @@ const updateComplaintStatus = async (req, res) => {
       });
     }
 
-    // Department Officer Authorization
     if (req.user.role === "Department") {
       const department = await Department.findOne({
         headOfficer: req.user._id,
@@ -222,8 +235,15 @@ const updateComplaintStatus = async (req, res) => {
     }
 
     complaint.status = req.body.status;
-
     await complaint.save();
+
+    // Notification for citizen
+    await Notification.create({
+      user: complaint.reportedBy,
+      complaint: complaint._id,
+      title: "Complaint Status Updated",
+      message: `Your complaint status has been changed to "${complaint.status}".`,
+    });
 
     res.status(200).json({
       success: true,
@@ -275,6 +295,13 @@ const assignComplaintToDepartment = async (req, res) => {
     complaint.status = "Assigned";
 
     await complaint.save();
+
+    await Notification.create({
+      user: complaint.reportedBy,
+      complaint: complaint._id,
+      title: "Complaint Assigned",
+      message: `Your complaint has been assigned to "${department.departmentName}".`,
+    });
 
     res.status(200).json({
       success: true,
