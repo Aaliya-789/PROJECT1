@@ -58,11 +58,11 @@ const CitizenDashboard = () => {
           </Link>
 
           <Link
-            to="/citizen/complaint-history"
-            className="bg-teal-500 text-white p-5 rounded-xl text-center font-semibold hover:bg-teal-600 transition"
-          >
-            Complaint History
-          </Link>
+    to="/citizen/history"
+    className="bg-teal-500 text-white p-5 rounded-xl text-center font-semibold hover:bg-teal-600 transition"
+>
+    Complaint History
+</Link>
 
           <Link
             to="/citizen/notifications"
