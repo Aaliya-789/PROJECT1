@@ -11,7 +11,6 @@ const Navbar = () => {
           <span className="text-teal-400">Connect</span>
         </Link>
 
-
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-8 text-gray-200 font-medium">
 
@@ -45,7 +44,6 @@ const Navbar = () => {
 
         </div>
 
-
         {/* Authentication Buttons */}
         <div className="flex items-center gap-4">
 
@@ -53,30 +51,31 @@ const Navbar = () => {
           <Link
             to="/login"
             className="
-            border-2 border-teal-400
-            text-teal-400
-            px-5 py-2
-            rounded-lg
-            font-medium
-            hover:bg-teal-400
-            hover:text-white
-            transition duration-300"
+              border-2 border-teal-400
+              text-teal-400
+              px-5 py-2
+              rounded-lg
+              font-medium
+              hover:bg-teal-400
+              hover:text-white
+              transition duration-300
+            "
           >
             Login
           </Link>
-
 
           {/* Register Button */}
           <Link
             to="/register"
             className="
-            bg-amber-500
-            text-white
-            px-5 py-2
-            rounded-lg
-            font-medium
-            hover:bg-amber-600
-            transition duration-300"
+              bg-amber-500
+              text-white
+              px-5 py-2
+              rounded-lg
+              font-medium
+              hover:bg-amber-600
+              transition duration-300
+            "
           >
             Register
           </Link>

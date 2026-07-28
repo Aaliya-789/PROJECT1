@@ -1,6 +1,14 @@
 import { Routes, Route } from "react-router-dom";
 
-// Layouts
+// Home
+import Home from "./pages/Home";
+
+// Auth
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+
+// Layout
 import CitizenLayout from "./layouts/CitizenLayout";
 
 // Citizen Pages
@@ -11,14 +19,19 @@ import ComplaintDetails from "./pages/citizen/ComplaintDetails";
 import Notifications from "./pages/citizen/Notifications";
 import Profile from "./pages/citizen/Profile";
 
-
 function App() {
   return (
     <Routes>
 
-      {/* =========================
-          Citizen Dashboard
-      ========================== */}
+      {/* Landing Page */}
+      <Route path="/" element={<Home />} />
+
+      {/* Authentication */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+
+      {/* Citizen Dashboard */}
       <Route
         path="/citizen/dashboard"
         element={
@@ -28,10 +41,6 @@ function App() {
         }
       />
 
-
-      {/* =========================
-          Raise Complaint
-      ========================== */}
       <Route
         path="/citizen/raise-complaint"
         element={
@@ -41,12 +50,8 @@ function App() {
         }
       />
 
-
-      {/* =========================
-          Complaint History
-      ========================== */}
       <Route
-        path="/citizen/complaint-history"
+        path="/citizen/history"
         element={
           <CitizenLayout>
             <ComplaintHistory />
@@ -54,14 +59,8 @@ function App() {
         }
       />
 
-
-      {/* =========================
-          Complaint Details
-          Example:
-          /citizen/complaint-details/101
-      ========================== */}
       <Route
-        path="/citizen/complaint-details/:id"
+        path="/citizen/details"
         element={
           <CitizenLayout>
             <ComplaintDetails />
@@ -69,10 +68,6 @@ function App() {
         }
       />
 
-
-      {/* =========================
-          Notifications
-      ========================== */}
       <Route
         path="/citizen/notifications"
         element={
@@ -82,10 +77,6 @@ function App() {
         }
       />
 
-
-      {/* =========================
-          Profile
-      ========================== */}
       <Route
         path="/citizen/profile"
         element={
@@ -94,7 +85,6 @@ function App() {
           </CitizenLayout>
         }
       />
-
 
     </Routes>
   );

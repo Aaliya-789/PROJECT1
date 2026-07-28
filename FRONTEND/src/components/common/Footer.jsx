@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   FaFacebookF,
   FaTwitter,
@@ -11,14 +10,14 @@ import {
 const Footer = () => {
   return (
     <footer
-  id="contact"
-  className="bg-[#0F172A] text-gray-300"
->
+      id="contact"
+      className="bg-[#0F172A] text-gray-300"
+    >
       <div className="max-w-7xl mx-auto px-6 py-12">
-
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
 
           {/* Logo & About */}
+
           <div>
             <h2 className="text-3xl font-bold">
               <span className="text-white">Civic</span>
@@ -33,6 +32,7 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
+
           <div>
             <h3 className="text-white text-lg font-semibold mb-5">
               Quick Links
@@ -41,54 +41,63 @@ const Footer = () => {
             <ul className="space-y-3">
 
               <li>
-                <Link to="/" className="hover:text-teal-400">
+                <a
+                  href="#home"
+                  className="hover:text-teal-400 transition duration-300"
+                >
                   Home
-                </Link>
+                </a>
               </li>
 
               <li>
-                <Link to="/features" className="hover:text-teal-400">
+                <a
+                  href="#features"
+                  className="hover:text-teal-400 transition duration-300"
+                >
                   Features
-                </Link>
+                </a>
               </li>
 
               <li>
-                <Link to="/community" className="hover:text-teal-400">
+                <a
+                  href="#community"
+                  className="hover:text-teal-400 transition duration-300"
+                >
                   Community
-                </Link>
+                </a>
               </li>
 
               <li>
-                <Link to="/contact" className="hover:text-teal-400">
+                <a
+                  href="#contact"
+                  className="hover:text-teal-400 transition duration-300"
+                >
                   Contact
-                </Link>
+                </a>
               </li>
 
             </ul>
           </div>
 
-          {/* Categories */}
-          <div>
+          {/* Report Issues */}
 
+          <div>
             <h3 className="text-white text-lg font-semibold mb-5">
               Report Issues
             </h3>
 
             <ul className="space-y-3">
-
               <li>Garbage</li>
               <li>Potholes</li>
               <li>Water Leakage</li>
               <li>Street Lights</li>
               <li>Sewage</li>
-
             </ul>
-
           </div>
 
-          {/* Contact */}
-          <div>
+          {/* Contact Details */}
 
+          <div>
             <h3 className="text-white text-lg font-semibold mb-5">
               Contact
             </h3>
@@ -97,38 +106,41 @@ const Footer = () => {
 
               <div className="flex items-center gap-3">
                 <FaEnvelope className="text-teal-400" />
-                support@civicconnect.com
+                <span>support@civicconnect.com</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <FaPhoneAlt className="text-teal-400" />
-                +91 9876543210
+                <span>+91 9876543210</span>
               </div>
+
+              {/* Social Icons */}
 
               <div className="flex gap-5 pt-3 text-xl">
 
-                <FaFacebookF className="cursor-pointer hover:text-teal-400" />
+                <FaFacebookF className="cursor-pointer hover:text-teal-400 transition duration-300" />
 
-                <FaTwitter className="cursor-pointer hover:text-teal-400" />
+                <FaTwitter className="cursor-pointer hover:text-teal-400 transition duration-300" />
 
-                <FaInstagram className="cursor-pointer hover:text-teal-400" />
+                <FaInstagram className="cursor-pointer hover:text-teal-400 transition duration-300" />
 
-                <FaLinkedin className="cursor-pointer hover:text-teal-400" />
+                <FaLinkedin className="cursor-pointer hover:text-teal-400 transition duration-300" />
 
               </div>
 
             </div>
-
           </div>
-
         </div>
 
+        {/* Divider */}
+
         <hr className="border-gray-700 my-8" />
+
+        {/* Copyright */}
 
         <div className="text-center text-sm text-gray-400">
           © 2026 CivicConnect. All Rights Reserved.
         </div>
-
       </div>
     </footer>
   );

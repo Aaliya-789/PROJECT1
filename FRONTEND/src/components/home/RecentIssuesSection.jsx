@@ -47,7 +47,6 @@ const categories = [
 const RecentIssuesSection = () => {
   return (
     <section
-  id="community"
   className="bg-[#F8FAFC] py-24"
 >
       <div className="max-w-7xl mx-auto px-6">

@@ -1,6 +1,11 @@
+import { Link } from "react-router-dom";
+
 const CTASection = () => {
   return (
-    <section className="bg-[#1E3A5F] py-24">
+    <section
+      id="community"
+      className="bg-[#1E3A5F] py-24"
+    >
       <div className="max-w-5xl mx-auto px-6 text-center">
 
         {/* Heading */}
@@ -18,13 +23,45 @@ const CTASection = () => {
         {/* Buttons */}
         <div className="mt-10 flex flex-wrap justify-center gap-5">
 
-          <button className="bg-[#2A9D8F] hover:bg-[#23867A] text-white px-8 py-4 rounded-lg font-semibold transition duration-300">
-            Report an Issue
-          </button>
+          {/* Report Issue */}
+          <Link to="/login">
+            <button
+              className="
+              bg-[#2A9D8F]
+              hover:bg-[#23867A]
+              text-white
+              px-8
+              py-4
+              rounded-lg
+              font-semibold
+              transition
+              duration-300
+              "
+            >
+              Report an Issue
+            </button>
+          </Link>
 
-          <button className="border-2 border-white text-white hover:bg-white hover:text-[#1E3A5F] px-8 py-4 rounded-lg font-semibold transition duration-300">
-            Learn More
-          </button>
+          {/* Learn More */}
+          <a href="#how-it-works">
+            <button
+              className="
+              border-2
+              border-white
+              text-white
+              hover:bg-white
+              hover:text-[#1E3A5F]
+              px-8
+              py-4
+              rounded-lg
+              font-semibold
+              transition
+              duration-300
+              "
+            >
+              Learn More
+            </button>
+          </a>
 
         </div>
 
