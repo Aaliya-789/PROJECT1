@@ -45,50 +45,59 @@ const RaiseComplaint = () => {
 
 
   const handleSubmit = (e) => {
+  e.preventDefault();
 
-    e.preventDefault();
+  // Validation
+  if (
+    !formData.title ||
+    !formData.category ||
+    !formData.description ||
+    !formData.location ||
+    (formData.category === "Others" &&
+      !formData.otherCategory)
+  ) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
-
-
-    if (
-      !formData.title ||
-      !formData.category ||
-      !formData.description ||
-      !formData.location ||
-      (
-        formData.category === "Others" &&
-        !formData.otherCategory
-      )
-    ) {
-
-      toast.error("Please fill all required fields");
-      return;
-
-    }
-
-
-
-    const complaintData = {
-      ...formData,
-      images,
-      status: "Submitted",
-    };
-
-
-    console.log(complaintData);
-
-
-
-    toast.success(
-      "Complaint submitted successfully"
-    );
-
-
-    // Backend API will be connected here later
-
-    navigate("/citizen/complaint-history");
-
+  // Create complaint object
+  const complaintData = {
+    id: Date.now(),
+    title: formData.title,
+    category:
+      formData.category === "Others"
+        ? formData.otherCategory
+        : formData.category,
+    description: formData.description,
+    location: formData.location,
+    status: "Submitted",
+    date: new Date().toLocaleDateString(),
+    images,
   };
+
+  // Fetch previously stored complaints
+  const existingComplaints =
+    JSON.parse(localStorage.getItem("complaints")) || [];
+
+  // Add the new complaint
+  existingComplaints.push(complaintData);
+
+  // Save updated complaints array
+  localStorage.setItem(
+    "complaints",
+    JSON.stringify(existingComplaints)
+  );
+
+  // Success popup
+  toast.success(
+    "Your complaint has been registered successfully!"
+  );
+
+  // Redirect after 1.5 seconds
+  setTimeout(() => {
+    navigate("/citizen/dashboard");
+  }, 1500);
+};
 
 
 

@@ -3,6 +3,8 @@ const express = require("express");
 const {
   registerUser,
   loginUser,
+  forgotPassword,
+  resetPassword,
   getProfile,
   updateProfile,
   changePassword,
@@ -15,6 +17,7 @@ const router = express.Router();
 // Public Routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+
 
 // Protected Routes
 router.get("/profile", protect, getProfile);

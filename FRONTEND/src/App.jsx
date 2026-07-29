@@ -23,15 +23,16 @@ function App() {
   return (
     <Routes>
 
-      {/* Landing Page */}
+      {/* Home */}
       <Route path="/" element={<Home />} />
 
-      {/* Authentication */}
+      {/* Auth */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Citizen Dashboard */}
+      {/* Citizen */}
+
       <Route
         path="/citizen/dashboard"
         element={
@@ -51,7 +52,7 @@ function App() {
       />
 
       <Route
-        path="/citizen/history"
+        path="/citizen/complaint-history"
         element={
           <CitizenLayout>
             <ComplaintHistory />

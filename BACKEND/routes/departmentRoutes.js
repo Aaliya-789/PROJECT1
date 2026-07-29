@@ -4,6 +4,8 @@ const router = express.Router();
 const {
   createDepartment,
   getDepartments,
+  updateDepartment,
+  deleteDepartment,
   createDepartmentOfficer,
   getMyDepartmentComplaints,
 } = require("../controllers/departmentController");
@@ -51,4 +53,25 @@ router.get(
   getDepartments
 );
 
+// ==========================================
+// Update Department (Admin)
+// PUT /api/departments/:id
+// ==========================================
+router.put(
+  "/:id",
+  protect,
+  authorize("Admin"),
+  updateDepartment
+);
+
+// ==========================================
+// Delete Department (Admin)
+// DELETE /api/departments/:id
+// ==========================================
+router.delete(
+  "/:id",
+  protect,
+  authorize("Admin"),
+  deleteDepartment
+);
 module.exports = router;
