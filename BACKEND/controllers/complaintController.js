@@ -162,9 +162,44 @@ const getComplaintById = async (req, res) => {
 // ==========================================
 const getAllComplaints = async (req, res) => {
   try {
-    const complaints = await Complaint.find()
+    const { status, category, search } = req.query;
+
+    const filter = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (search) {
+      filter.$or = [
+        {
+          title: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          description: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          address: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    const complaints = await Complaint.find(filter)
       .populate("reportedBy", "name email")
-      .populate("assignedDepartment")
+      .populate("assignedDepartment", "departmentName")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -172,6 +207,7 @@ const getAllComplaints = async (req, res) => {
       count: complaints.length,
       complaints,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -179,7 +215,6 @@ const getAllComplaints = async (req, res) => {
     });
   }
 };
-
 // ==========================================
 // Update Complaint Status
 // PUT /api/complaints/:id/status
