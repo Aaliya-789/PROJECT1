@@ -46,6 +46,73 @@ const getDepartments = async (req, res) => {
 };
 
 // ==========================================
+// Update Department (Admin)
+// PUT /api/departments/:id
+// ==========================================
+
+const updateDepartment = async (req, res) => {
+  try {
+    const department = await Department.findById(req.params.id);
+
+    if (!department) {
+      return res.status(404).json({
+        success: false,
+        message: "Department not found",
+      });
+    }
+
+    const updatedDepartment = await Department.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Department updated successfully",
+      department: updatedDepartment,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ==========================================
+// Delete Department (Admin)
+// DELETE /api/departments/:id
+// ==========================================
+
+const deleteDepartment = async (req, res) => {
+  try {
+    const department = await Department.findById(req.params.id);
+
+    if (!department) {
+      return res.status(404).json({
+        success: false,
+        message: "Department not found",
+      });
+    }
+
+    await department.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Department deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+// ==========================================
 // Create Department Officer (Admin)
 // POST /api/departments/:id/officer
 // ==========================================
@@ -146,6 +213,8 @@ const getMyDepartmentComplaints = async (req, res) => {
 module.exports = {
   createDepartment,
   getDepartments,
+  updateDepartment,
+  deleteDepartment,
   createDepartmentOfficer,
   getMyDepartmentComplaints,
 };
