@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { registerUser } from "../../services/authService";
 
 const Register = () => {
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -12,26 +12,17 @@ const Register = () => {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "Citizen",
   });
 
-
-
   const handleChange = (e) => {
-
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-
   };
 
-
-
-  const handleSubmit = (e) => {
-
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
 
     if (
       !formData.name ||
@@ -39,38 +30,34 @@ const Register = () => {
       !formData.password ||
       !formData.confirmPassword
     ) {
-
       toast.error("Please fill all required fields");
       return;
-
     }
 
-
-
-    if(formData.password !== formData.confirmPassword){
-
+    if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
-
     }
 
+    try {
+      const data = await registerUser({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: "Citizen", // Always register as Citizen
+      });
 
-
-    console.log(formData);
-
-
-    toast.success("Registration successful");
-
-
-    navigate("/login");
-
+      toast.success(data.message);
+      navigate("/login");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Registration failed"
+      );
+    }
   };
 
-
-
-
   return (
-
     <div
       className="
       min-h-screen
@@ -85,8 +72,6 @@ const Register = () => {
       py-10
       "
     >
-
-
       <div
         className="
         bg-white
@@ -97,50 +82,24 @@ const Register = () => {
         max-w-lg
         "
       >
-
-
-
         {/* Heading */}
-
         <div className="text-center mb-8">
-
-
           <h1 className="text-4xl font-bold">
-
-            <span className="text-[#0F172A]">
-              Civic
-            </span>
-
-            <span className="text-teal-500">
-              Connect
-            </span>
-
+            <span className="text-[#0F172A]">Civic</span>
+            <span className="text-teal-500">Connect</span>
           </h1>
-
 
           <p className="text-gray-500 mt-3">
             Create your account to get started
           </p>
-
-
         </div>
 
-
-
-
-
         <form onSubmit={handleSubmit}>
-
-
-
           {/* Name */}
-
           <div className="mb-4">
-
             <label className="block text-gray-700 font-medium mb-2">
               Full Name
             </label>
-
 
             <input
               type="text"
@@ -160,21 +119,13 @@ const Register = () => {
               focus:ring-teal-400
               "
             />
-
           </div>
 
-
-
-
-
           {/* Email */}
-
           <div className="mb-4">
-
             <label className="block text-gray-700 font-medium mb-2">
               Email
             </label>
-
 
             <input
               type="email"
@@ -194,22 +145,13 @@ const Register = () => {
               focus:ring-teal-400
               "
             />
-
-
           </div>
 
-
-
-
-
           {/* Phone */}
-
           <div className="mb-4">
-
             <label className="block text-gray-700 font-medium mb-2">
               Phone Number
             </label>
-
 
             <input
               type="tel"
@@ -229,75 +171,13 @@ const Register = () => {
               focus:ring-teal-400
               "
             />
-
-
           </div>
-
-
-
-
-
-
-          {/* Role */}
-
-          <div className="mb-4">
-
-            <label className="block text-gray-700 font-medium mb-2">
-              Register As
-            </label>
-
-
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="
-              w-full
-              px-4
-              py-3
-              border
-              border-gray-300
-              rounded-xl
-              focus:outline-none
-              focus:ring-2
-              focus:ring-teal-400
-              "
-            >
-
-              <option>
-                Citizen
-              </option>
-
-
-              <option>
-                Government Authority
-              </option>
-
-
-              <option>
-                Admin
-              </option>
-
-
-            </select>
-
-
-          </div>
-
-
-
-
-
 
           {/* Password */}
-
           <div className="mb-4">
-
-
             <label className="block text-gray-700 font-medium mb-2">
               Password
             </label>
-
 
             <input
               type="password"
@@ -317,25 +197,13 @@ const Register = () => {
               focus:ring-teal-400
               "
             />
-
-
           </div>
 
-
-
-
-
-
-
           {/* Confirm Password */}
-
           <div className="mb-6">
-
-
             <label className="block text-gray-700 font-medium mb-2">
               Confirm Password
             </label>
-
 
             <input
               type="password"
@@ -355,18 +223,9 @@ const Register = () => {
               focus:ring-teal-400
               "
             />
-
-
           </div>
 
-
-
-
-
-
-
           {/* Register Button */}
-
           <button
             type="submit"
             className="
@@ -381,29 +240,14 @@ const Register = () => {
             shadow-lg
             "
           >
-
             Create Account
-
           </button>
-
-
-
         </form>
 
-
-
-
-
-
         {/* Login Link */}
-
         <div className="text-center mt-6 text-sm">
-
-
           <p className="text-gray-600">
-
             Already have an account?
-
 
             <Link
               to="/login"
@@ -414,28 +258,13 @@ const Register = () => {
               hover:underline
               "
             >
-
               Login
-
             </Link>
-
-
           </p>
-
-
         </div>
-
-
-
-
       </div>
-
-
     </div>
-
   );
-
 };
-
 
 export default Register;

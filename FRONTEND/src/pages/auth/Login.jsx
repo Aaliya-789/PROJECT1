@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { loginUser } from "../../services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (!formData.email || !formData.password) {
@@ -26,21 +27,35 @@ const Login = () => {
     return;
   }
 
-  // Backend API will be connected here later
-  console.log(formData);
+  try {
+    const data = await loginUser({
+      email: formData.email,
+      password: formData.password,
+    });
+console.log("Login Response:", data);
+    toast.success(data.message);
 
-  toast.success("Login successful");
+    // Save token
+    localStorage.setItem("token", data.token);
 
-  // Temporary navigation
-  if (formData.role === "Citizen") {
-    navigate("/citizen/dashboard");
-  } else if (formData.role === "Admin") {
-    navigate("/admin/dashboard");
-  } else if (formData.role === "Government Authority") {
-    navigate("/department/dashboard");
+    // Save user
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // Navigate based on role returned from backend
+    if (data.user.role === "Citizen") {
+      navigate("/citizen/dashboard");
+    } else if (data.user.role === "Admin") {
+      navigate("/admin/dashboard");
+    } else if (data.user.role === "Department") {
+      navigate("/department/dashboard");
+    }
+
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message || "Login failed"
+    );
   }
 };
-
   return (
     <div
       className="
@@ -158,7 +173,7 @@ const Login = () => {
             >
               <option>Citizen</option>
 
-              <option>Government Authority</option>
+              <option>Department</option>
 
               <option>Admin</option>
             </select>
