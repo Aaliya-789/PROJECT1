@@ -19,27 +19,27 @@ const Login = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      toast.error("Please fill all required fields");
-      return;
-    }
+  if (!formData.email || !formData.password) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
-    // Backend API will be connected here later
-    console.log(formData);
+  // Backend API will be connected here later
+  console.log(formData);
 
-    toast.success("Login successful");
+  toast.success("Login successful");
 
-    // Temporary navigation
-    if (formData.role === "Citizen") {
-      navigate("/citizen/dashboard");
-    } else if (formData.role === "Admin") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/authority/dashboard");
-    }
-  };
+  // Temporary navigation
+  if (formData.role === "Citizen") {
+    navigate("/citizen/dashboard");
+  } else if (formData.role === "Admin") {
+    navigate("/admin/dashboard");
+  } else if (formData.role === "Government Authority") {
+    navigate("/department/dashboard");
+  }
+};
 
   return (
     <div

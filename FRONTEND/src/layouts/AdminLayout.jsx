@@ -1,6 +1,6 @@
-import { Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const AdminLayout = () => {
+const AdminLayout = ({ children }) => {
   return (
     <div className="min-h-screen flex bg-slate-100">
       {/* Sidebar */}
@@ -10,35 +10,35 @@ const AdminLayout = () => {
         </h1>
 
         <nav className="space-y-4">
-          <a href="#" className="block hover:text-teal-400">
+          <Link to="/admin/dashboard" className="block hover:text-teal-400">
             Dashboard
-          </a>
+          </Link>
 
-          <a href="#" className="block hover:text-teal-400">
+          <Link to="/admin/users" className="block hover:text-teal-400">
             Manage Users
-          </a>
+          </Link>
 
-          <a href="#" className="block hover:text-teal-400">
+          <Link to="/admin/complaints" className="block hover:text-teal-400">
             Complaints
-          </a>
+          </Link>
 
-          <a href="#" className="block hover:text-teal-400">
+          <Link to="/admin/departments" className="block hover:text-teal-400">
             Departments
-          </a>
+          </Link>
 
-          <a href="#" className="block hover:text-teal-400">
+          <Link to="/admin/analytics" className="block hover:text-teal-400">
             Analytics
-          </a>
+          </Link>
 
-          <a href="#" className="block hover:text-teal-400">
+          <Link to="/admin/reports" className="block hover:text-teal-400">
             Reports
-          </a>
+          </Link>
         </nav>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-8">
-        <Outlet />
+        {children}
       </main>
     </div>
   );

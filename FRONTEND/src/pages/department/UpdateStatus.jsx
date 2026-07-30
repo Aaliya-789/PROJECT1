@@ -1,8 +1,15 @@
 import { useState } from "react";
 
-const UpdateComplaint = () => {
+const UpdateStatus = () => {
   const [status, setStatus] = useState("Assigned");
   const [remarks, setRemarks] = useState("");
+  const [image, setImage] = useState(null);
+
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      setImage(URL.createObjectURL(e.target.files[0]));
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,23 +19,21 @@ const UpdateComplaint = () => {
     console.log({
       status,
       remarks,
+      image,
     });
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
 
       <h2 className="text-2xl font-bold mb-6">
         Update Complaint
       </h2>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6"
-      >
+      <form onSubmit={handleSubmit} className="space-y-6">
 
+        {/* Status */}
         <div>
-
           <label className="block font-semibold mb-2">
             Complaint Status
           </label>
@@ -42,11 +47,10 @@ const UpdateComplaint = () => {
             <option>In Progress</option>
             <option>Resolved</option>
           </select>
-
         </div>
 
+        {/* Remarks */}
         <div>
-
           <label className="block font-semibold mb-2">
             Remarks
           </label>
@@ -58,7 +62,28 @@ const UpdateComplaint = () => {
             onChange={(e) => setRemarks(e.target.value)}
             className="w-full border rounded-lg p-3"
           />
+        </div>
 
+        {/* Upload Image */}
+        <div>
+          <label className="block font-semibold mb-2">
+            Upload Updated Work Image
+          </label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full border rounded-lg p-2"
+          />
+
+          {image && (
+            <img
+              src={image}
+              alt="Preview"
+              className="mt-4 w-64 h-64 object-cover rounded-lg border"
+            />
+          )}
         </div>
 
         <button
@@ -69,9 +94,8 @@ const UpdateComplaint = () => {
         </button>
 
       </form>
-
     </div>
   );
 };
 
-export default UpdateComplaint;
+export default UpdateStatus;
