@@ -2,10 +2,18 @@ const Department = require("../models/Department");
 const User = require("../models/User");
 const Complaint = require("../models/Complaint");
 
+// ==========================================
 // Create Department (Admin)
+// ==========================================
+
 const createDepartment = async (req, res) => {
   try {
+    console.log("===== CREATE DEPARTMENT =====");
+    console.log("Request Body:", req.body);
+
     const department = await Department.create(req.body);
+
+    console.log("Department Created:", department);
 
     res.status(201).json({
       success: true,
@@ -14,6 +22,9 @@ const createDepartment = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("===== CREATE DEPARTMENT ERROR =====");
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -22,7 +33,10 @@ const createDepartment = async (req, res) => {
 };
 
 
+// ==========================================
 // Get All Departments
+// ==========================================
+
 const getDepartments = async (req, res) => {
   try {
 
@@ -35,23 +49,26 @@ const getDepartments = async (req, res) => {
       departments,
     });
 
-  } catch(error){
+  } catch (error) {
+
+    console.error(error);
 
     res.status(500).json({
-      success:false,
-      message:error.message
+      success: false,
+      message: error.message,
     });
 
   }
 };
 
+
 // ==========================================
-// Update Department (Admin)
-// PUT /api/departments/:id
+// Update Department
 // ==========================================
 
 const updateDepartment = async (req, res) => {
   try {
+
     const department = await Department.findById(req.params.id);
 
     if (!department) {
@@ -75,21 +92,27 @@ const updateDepartment = async (req, res) => {
       message: "Department updated successfully",
       department: updatedDepartment,
     });
+
   } catch (error) {
+
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
 
+
 // ==========================================
-// Delete Department (Admin)
-// DELETE /api/departments/:id
+// Delete Department
 // ==========================================
 
 const deleteDepartment = async (req, res) => {
   try {
+
     const department = await Department.findById(req.params.id);
 
     if (!department) {
@@ -105,23 +128,32 @@ const deleteDepartment = async (req, res) => {
       success: true,
       message: "Department deleted successfully",
     });
+
   } catch (error) {
+
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
+
+
 // ==========================================
-// Create Department Officer (Admin)
-// POST /api/departments/:id/officer
+// Create Department Officer
 // ==========================================
 
 const createDepartmentOfficer = async (req, res) => {
   try {
+    console.log("===== CREATE DEPARTMENT OFFICER =====");
+    console.log("Department ID:", req.params.id);
+    console.log("Request Body:", req.body);
+
     const { name, email, password, phone } = req.body;
 
-    // Check department exists
     const department = await Department.findById(req.params.id);
 
     if (!department) {
@@ -131,7 +163,6 @@ const createDepartmentOfficer = async (req, res) => {
       });
     }
 
-    // Check email already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -141,7 +172,6 @@ const createDepartmentOfficer = async (req, res) => {
       });
     }
 
-    // Create Department Officer
     const officer = await User.create({
       name,
       email,
@@ -150,7 +180,8 @@ const createDepartmentOfficer = async (req, res) => {
       role: "Department",
     });
 
-    // Link officer to department
+    console.log("Officer Created:", officer);
+
     department.headOfficer = officer._id;
     await department.save();
 
@@ -162,20 +193,24 @@ const createDepartmentOfficer = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("===== CREATE OFFICER ERROR =====");
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
+
 // ==========================================
-// Get Complaints Assigned to Logged-in Department Officer
-// GET /api/departments/my-complaints
+// Get My Department Complaints
 // ==========================================
 
 const getMyDepartmentComplaints = async (req, res) => {
   try {
-    // Find department where logged-in user is the head officer
+
     const department = await Department.findOne({
       headOfficer: req.user._id,
     });
@@ -187,7 +222,6 @@ const getMyDepartmentComplaints = async (req, res) => {
       });
     }
 
-    // Get complaints assigned to this department
     const complaints = await Complaint.find({
       assignedDepartment: department._id,
     })
@@ -203,12 +237,17 @@ const getMyDepartmentComplaints = async (req, res) => {
     });
 
   } catch (error) {
+
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
+
 
 module.exports = {
   createDepartment,
