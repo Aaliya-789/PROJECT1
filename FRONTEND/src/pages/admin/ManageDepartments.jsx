@@ -21,10 +21,13 @@ const ManageDepartments = () => {
   const [editId, setEditId] = useState(null);
 
 
-  const [formData, setFormData] = useState({
-    name:"",
-    description:"",
-  });
+ const [formData, setFormData] = useState({
+  departmentName: "",
+  description: "",
+  email: "",
+  phone: "",
+  location: "",
+});
 
 
 
@@ -119,9 +122,12 @@ const ManageDepartments = () => {
 
 
       setFormData({
-        name:"",
-        description:"",
-      });
+  departmentName: "",
+  description: "",
+  email: "",
+  phone: "",
+  location: "",
+});
 
 
       fetchDepartments();
@@ -144,23 +150,21 @@ const ManageDepartments = () => {
 
 
 
-  const handleEdit=(department)=>{
+  const handleEdit = (department) => {
 
-    setEditId(department._id);
+  setEditId(department._id);
 
+  setFormData({
+    departmentName: department.departmentName,
+    description: department.description || "",
+    email: department.email || "",
+    phone: department.phone || "",
+    location: department.location || "",
+  });
 
-    setFormData({
+  setShowForm(true);
 
-      name:department.name,
-
-      description:department.description || ""
-
-    });
-
-
-    setShowForm(true);
-
-  };
+};
 
 
 
@@ -330,66 +334,77 @@ onSubmit={handleSubmit}
 className="bg-slate-50 p-4 rounded-lg mb-6"
 >
 
-
 <input
-
 className="border p-2 w-full mb-3 rounded"
-
 placeholder="Department Name"
-
-value={formData.name}
-
+value={formData.departmentName}
 onChange={(e)=>
-
 setFormData({
-
 ...formData,
-
-name:e.target.value
-
+departmentName:e.target.value
 })
-
 }
-
+required
 />
-
-
 
 <textarea
-
 className="border p-2 w-full mb-3 rounded"
-
 placeholder="Description"
-
 value={formData.description}
-
 onChange={(e)=>
-
 setFormData({
-
 ...formData,
-
 description:e.target.value
-
 })
-
 }
-
+required
 />
 
+<input
+type="email"
+className="border p-2 w-full mb-3 rounded"
+placeholder="Department Email"
+value={formData.email}
+onChange={(e)=>
+setFormData({
+...formData,
+email:e.target.value
+})
+}
+required
+/>
 
+<input
+className="border p-2 w-full mb-3 rounded"
+placeholder="Phone Number"
+value={formData.phone}
+onChange={(e)=>
+setFormData({
+...formData,
+phone:e.target.value
+})
+}
+required
+/>
+
+<input
+className="border p-2 w-full mb-3 rounded"
+placeholder="Location"
+value={formData.location}
+onChange={(e)=>
+setFormData({
+...formData,
+location:e.target.value
+})
+}
+required
+/>
 
 <button
-
 className="bg-green-600 text-white px-4 py-2 rounded"
-
 >
-
 {editId ? "Update Department" : "Create Department"}
-
 </button>
-
-
 
 </form>
 
@@ -598,8 +613,7 @@ className="border-b"
 
 
 <td className="p-3">
-{department.name}
-</td>
+{department.departmentName}</td>
 
 
 
