@@ -77,7 +77,7 @@ function App() {
       />
 
       <Route
-        path="/citizen/details"
+        path="/citizen/details/:id"
         element={
           <CitizenLayout>
             <ComplaintDetails />
@@ -178,7 +178,7 @@ function App() {
       />
 
       <Route
-        path="/department/details"
+        path="/department/details/:id"
         element={
           <DepartmentLayout>
             <ComplaintDetailsDepartment />
@@ -187,7 +187,7 @@ function App() {
       />
 
       <Route
-        path="/department/update"
+        path="/department/update/:id"
         element={
           <DepartmentLayout>
             <UpdateStatus />

@@ -1,99 +1,155 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getComplaintById,
+  updateComplaintStatus,
+} from "../../services/complaintService";
 
 const UpdateStatus = () => {
-  const [status, setStatus] = useState("Assigned");
-  const [remarks, setRemarks] = useState("");
-  const [image, setImage] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setImage(URL.createObjectURL(e.target.files[0]));
+  const [complaint, setComplaint] = useState(null);
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    fetchComplaint();
+  }, []);
+
+
+  const fetchComplaint = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const data = await getComplaintById(token, id);
+
+      setComplaint(data.complaint);
+      setStatus(data.complaint.status);
+
+    } catch (error) {
+      console.log(error);
+      alert("Failed to load complaint");
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
 
-    alert("Complaint Updated Successfully!");
+  const handleUpdate = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    console.log({
-      status,
-      remarks,
-      image,
-    });
+      await updateComplaintStatus(
+        token,
+        id,
+        status
+      );
+
+      alert("Status updated successfully");
+
+      navigate("/department/complaints");
+
+    } catch (error) {
+      console.log(error);
+
+      if (error.response) {
+        console.log(error.response.data);
+      }
+
+      alert("Failed to update status");
+    }
   };
 
+
+  if (!complaint) {
+    return (
+      <div className="text-center mt-10">
+        Loading...
+      </div>
+    );
+  }
+
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
+    <div className="bg-white shadow-md rounded-lg p-6">
 
       <h2 className="text-2xl font-bold mb-6">
-        Update Complaint
+        Update Complaint Status
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* Status */}
-        <div>
-          <label className="block font-semibold mb-2">
-            Complaint Status
-          </label>
+      <div className="mb-5">
+        <p className="font-semibold">
+          Complaint
+        </p>
 
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full border rounded-lg p-3"
-          >
-            <option>Assigned</option>
-            <option>In Progress</option>
-            <option>Resolved</option>
-          </select>
-        </div>
+        <p>
+          {complaint.title}
+        </p>
+      </div>
 
-        {/* Remarks */}
-        <div>
-          <label className="block font-semibold mb-2">
-            Remarks
-          </label>
 
-          <textarea
-            rows="5"
-            placeholder="Enter update..."
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            className="w-full border rounded-lg p-3"
-          />
-        </div>
+      <div className="mb-5">
+        <p className="font-semibold">
+          Location
+        </p>
 
-        {/* Upload Image */}
-        <div>
-          <label className="block font-semibold mb-2">
-            Upload Updated Work Image
-          </label>
+        <p>
+          {complaint.location?.address || "N/A"}
+        </p>
+      </div>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="w-full border rounded-lg p-2"
-          />
 
-          {image && (
-            <img
-              src={image}
-              alt="Preview"
-              className="mt-4 w-64 h-64 object-cover rounded-lg border"
-            />
-          )}
-        </div>
+      <div className="mb-5">
+        <p className="font-semibold">
+          Current Status
+        </p>
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+        <p>
+          {complaint.status}
+        </p>
+      </div>
+
+
+      <div className="mb-6">
+
+        <label className="font-semibold">
+          Change Status
+        </label>
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="border rounded-lg p-3 w-full mt-2"
         >
-          Update Complaint
-        </button>
 
-      </form>
+          <option value="Assigned">
+            Assigned
+          </option>
+
+          <option value="In Progress">
+            In Progress
+          </option>
+
+          <option value="Resolved">
+            Resolved
+          </option>
+
+          <option value="Rejected">
+            Rejected
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <button
+        onClick={handleUpdate}
+        className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700"
+      >
+        Update Status
+      </button>
+
+
     </div>
   );
 };

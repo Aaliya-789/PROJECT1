@@ -1,7 +1,6 @@
+import { useEffect, useState } from "react";
 import DashboardHeader from "../../components/dashboard/DashboardHeader";
 import StatsCard from "../../components/dashboard/StatsCard";
-import RecentComplaints from "../../components/dashboard/RecentComplaints";
-import AnalyticsChart from "../../components/dashboard/AnalyticsChart";
 
 import {
   FaUsers,
@@ -10,86 +9,93 @@ import {
   FaBuilding,
 } from "react-icons/fa";
 
+import { getDashboardStats } from "../../services/adminService";
 const AdminDashboard = () => {
-  // Temporary statistics
-  const stats = [
+  const [stats, setStats] = useState({
+    totalCitizens: 0,
+    totalComplaints: 0,
+    resolved: 0,
+    totalDepartments: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  const fetchDashboard = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await getDashboardStats(token);
+
+      console.log("Dashboard Response:", response);
+
+      if (response.success) {
+        setStats(response.stats);
+      }
+    } catch (error) {
+      console.log(error);
+
+      if (error.response) {
+        console.log(error.response.data);
+      }
+
+      alert("Failed to load dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cards = [
     {
-      title: "Total Users",
-      value: 1200,
+      title: "Total Citizens",
+      value: stats.totalCitizens,
       icon: <FaUsers />,
       color: "bg-blue-500",
     },
     {
-      title: "Complaints",
-      value: 350,
+      title: "Total Complaints",
+      value: stats.totalComplaints,
       icon: <FaExclamationCircle />,
       color: "bg-orange-500",
     },
     {
       title: "Resolved",
-      value: 280,
+      value: stats.resolved,
       icon: <FaCheckCircle />,
       color: "bg-green-500",
     },
     {
       title: "Departments",
-      value: 12,
+      value: stats.totalDepartments,
       icon: <FaBuilding />,
       color: "bg-purple-500",
     },
-  ];
-
-  // Temporary complaint data
-  const complaints = [
-    {
-      id: 1,
-      title: "Pothole on Main Road",
-      category: "Road",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      title: "Streetlight Not Working",
-      category: "Electricity",
-      status: "Resolved",
-    },
-    {
-      id: 3,
-      title: "Garbage Overflow",
-      category: "Sanitation",
-      status: "In Progress",
-    },
-  ];
-
-  // Temporary chart data
-  const chartData = [
-    { month: "Jan", complaints: 30 },
-    { month: "Feb", complaints: 45 },
-    { month: "Mar", complaints: 60 },
-    { month: "Apr", complaints: 40 },
-    { month: "May", complaints: 70 },
-    { month: "Jun", complaints: 55 },
   ];
 
   return (
     <div className="space-y-8">
       <DashboardHeader title="Admin Dashboard" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {stats.map((item, index) => (
-          <StatsCard
-            key={index}
-            title={item.title}
-            value={item.value}
-            icon={item.icon}
-            color={item.color}
-          />
-        ))}
-      </div>
-
-      <RecentComplaints complaints={complaints} />
-
-      <AnalyticsChart data={chartData} />
+      {loading ? (
+        <p className="text-center text-lg font-semibold">
+          Loading Dashboard...
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          {cards.map((card, index) => (
+            <StatsCard
+              key={index}
+              title={card.title}
+              value={card.value}
+              icon={card.icon}
+              color={card.color}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
