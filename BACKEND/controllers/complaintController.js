@@ -270,7 +270,12 @@ const updateComplaintStatus = async (req, res) => {
     }
 
     complaint.status = req.body.status;
-    await complaint.save();
+
+    // Fix old complaints missing address validation issue
+    await complaint.save({
+      validateModifiedOnly: true,
+    });
+
 
     // Notification for citizen
     await Notification.create({
@@ -280,16 +285,23 @@ const updateComplaintStatus = async (req, res) => {
       message: `Your complaint status has been changed to "${complaint.status}".`,
     });
 
+
     res.status(200).json({
       success: true,
       message: "Complaint status updated successfully",
       complaint,
     });
+
+
   } catch (error) {
+
+    console.log("UPDATE STATUS ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
 
@@ -379,7 +391,85 @@ const deleteComplaint = async (req, res) => {
     });
   }
 };
+// ==========================================
+// Department Dashboard
+// GET /api/complaints/department/dashboard
+// ==========================================
+const getDepartmentDashboard = async (req, res) => {
+  try {
+    console.log("========== Department Dashboard ==========");
+    console.log("Logged in User:", req.user);
 
+    // Find department of logged-in officer
+    const department = await Department.findOne({
+      headOfficer: req.user._id,
+    });
+
+    console.log("Department Found:", department);
+
+    if (!department) {
+      return res.status(404).json({
+        success: false,
+        message: "Department not found",
+      });
+    }
+
+    // Show ALL complaints in database
+    const allComplaints = await Complaint.find();
+
+    console.log("========== ALL COMPLAINTS ==========");
+    console.log(allComplaints);
+
+    // Fetch complaints assigned to this department
+    const complaints = await Complaint.find({
+      assignedDepartment: department._id,
+    })
+      .populate("reportedBy", "name")
+      .sort({ createdAt: -1 });
+
+    console.log("Department ID:", department._id);
+    console.log("Assigned Complaints:", complaints);
+
+    const assigned = complaints.filter(
+      (c) => c.status === "Assigned"
+    ).length;
+
+    const inProgress = complaints.filter(
+      (c) => c.status === "In Progress"
+    ).length;
+
+    const resolved = complaints.filter(
+      (c) => c.status === "Resolved"
+    ).length;
+
+    const pending = complaints.filter(
+      (c) =>
+        c.status === "Submitted" ||
+        c.status === "Under Review"
+    ).length;
+
+    res.status(200).json({
+      success: true,
+      officer: req.user.name,
+      department: department.departmentName,
+      stats: {
+        assigned,
+        inProgress,
+        resolved,
+        pending,
+      },
+      complaints,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   createComplaint,
   getMyComplaints,
@@ -388,4 +478,5 @@ module.exports = {
   updateComplaintStatus,
   assignComplaintToDepartment,
   deleteComplaint,
+  getDepartmentDashboard,
 };
