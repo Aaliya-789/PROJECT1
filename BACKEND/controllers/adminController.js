@@ -185,9 +185,172 @@ const deleteUser = async (req, res) => {
     });
   }
 };
+// ==========================================
+// Analytics
+// GET /api/admin/analytics
+// ==========================================
+const getAnalytics = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
 
+    const totalComplaints = await Complaint.countDocuments();
+
+    const resolvedComplaints = await Complaint.countDocuments({
+      status: "Resolved",
+    });
+
+    const monthlyComplaints = await Complaint.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $type: "date",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $month: "$createdAt",
+          },
+          complaints: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]);
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const chartData = monthlyComplaints.map((item) => ({
+      month: monthNames[item._id - 1],
+      complaints: item.complaints,
+    }));
+
+    res.status(200).json({
+      success: true,
+      totalUsers,
+      totalComplaints,
+      resolvedComplaints,
+      chartData,
+    });
+  } catch (error) {
+    console.log("ANALYTICS ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+// ==========================================
+// Reports
+// GET /api/admin/reports
+// ==========================================
+const getReports = async (req, res) => {
+  try {
+    const totalComplaints = await Complaint.countDocuments();
+
+    const resolved = await Complaint.countDocuments({
+      status: "Resolved",
+    });
+
+    const pending = await Complaint.countDocuments({
+      status: {
+        $in: [
+          "Submitted",
+          "Assigned",
+          "Under Review",
+          "In Progress",
+        ],
+      },
+    });
+
+    const categoryReport = await Complaint.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          count: -1,
+        },
+      },
+    ]);
+
+    const departmentReport = await Complaint.aggregate([
+      {
+        $lookup: {
+          from: "departments",
+          localField: "assignedDepartment",
+          foreignField: "_id",
+          as: "department",
+        },
+      },
+      {
+        $unwind: {
+          path: "$department",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$department.departmentName",
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          count: -1,
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      totalComplaints,
+      resolved,
+      pending,
+      categoryReport,
+      departmentReport,
+    });
+
+  } catch (error) {
+    console.log("REPORT ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   getDashboardStats,
+  getAnalytics,
+  getReports,
   getAllUsers,
   getUserById,
   updateUser,

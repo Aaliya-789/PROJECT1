@@ -22,14 +22,14 @@ const createDepartment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("===== CREATE DEPARTMENT ERROR =====");
-    console.error(error);
+  console.error("===== CREATE OFFICER ERROR =====");
+  console.error(error);
 
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  res.status(400).json({
+    success: false,
+    message: error.message,
+  });
+}
 };
 
 

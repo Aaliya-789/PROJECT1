@@ -3,6 +3,8 @@ const router = express.Router();
 
 const {
   getDashboardStats,
+  getAnalytics,
+  getReports,
   getAllUsers,
   getUserById,
   updateUser,
@@ -19,6 +21,26 @@ router.get(
   protect,
   authorize("Admin"),
   getDashboardStats
+);
+
+// ==========================================
+// Analytics
+// ==========================================
+router.get(
+  "/analytics",
+  protect,
+  authorize("Admin"),
+  getAnalytics
+);
+
+// ==========================================
+// Reports
+// ==========================================
+router.get(
+  "/reports",
+  protect,
+  authorize("Admin"),
+  getReports
 );
 
 // ==========================================

@@ -2,6 +2,7 @@ const Complaint = require("../models/Complaint");
 const Department = require("../models/Department");
 const Notification = require("../models/Notification");
 const cloudinary = require("../config/cloudinary");
+const Comment = require("../models/Comment");
 
 // ==========================================
 // Create Complaint
@@ -230,6 +231,7 @@ const updateComplaintStatus = async (req, res) => {
       });
     }
 
+    // Department authorization
     if (req.user.role === "Department") {
       const department = await Department.findOne({
         headOfficer: req.user._id,
@@ -244,11 +246,13 @@ const updateComplaintStatus = async (req, res) => {
 
       if (
         !complaint.assignedDepartment ||
-        complaint.assignedDepartment.toString() !== department._id.toString()
+        complaint.assignedDepartment.toString() !==
+          department._id.toString()
       ) {
         return res.status(403).json({
           success: false,
-          message: "You are not authorized to update this complaint",
+          message:
+            "You are not authorized to update this complaint",
         });
       }
     }
@@ -269,15 +273,29 @@ const updateComplaintStatus = async (req, res) => {
       });
     }
 
+    // Update complaint status
     complaint.status = req.body.status;
 
-    // Fix old complaints missing address validation issue
     await complaint.save({
       validateModifiedOnly: true,
     });
 
+    // Save comment/remark if provided
+    if (req.body.message && req.body.message.trim() !== "") {
+      const comment = await Comment.create({
+        complaint: complaint._id,
+        user: req.user._id,
+        message: req.body.message,
+      });
 
-    // Notification for citizen
+      complaint.comments.push(comment._id);
+
+      await complaint.save({
+        validateModifiedOnly: true,
+      });
+    }
+
+    // Notify citizen
     await Notification.create({
       user: complaint.reportedBy,
       complaint: complaint._id,
@@ -285,23 +303,19 @@ const updateComplaintStatus = async (req, res) => {
       message: `Your complaint status has been changed to "${complaint.status}".`,
     });
 
-
     res.status(200).json({
       success: true,
       message: "Complaint status updated successfully",
       complaint,
     });
 
-
   } catch (error) {
-
     console.log("UPDATE STATUS ERROR:", error);
 
     res.status(500).json({
       success: false,
       message: error.message,
     });
-
   }
 };
 
