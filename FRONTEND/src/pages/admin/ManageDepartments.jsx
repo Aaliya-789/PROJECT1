@@ -229,16 +229,17 @@ const ManageDepartments = () => {
 
       const token = localStorage.getItem("token");
 
-
-      await createDepartmentOfficer(
-
-        token,
-
-        selectedDepartment,
-
-        officerData
-
-      );
+await createDepartmentOfficer(
+  token,
+  selectedDepartment,
+  {
+    name: officerData.name,
+    email: officerData.email,
+    password: officerData.password,
+    phone: officerData.phone,
+    role: "Department"
+  }
+);
 
 
 

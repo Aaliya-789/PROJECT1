@@ -31,7 +31,6 @@ const ComplaintDetails = () => {
     }
   };
 
-
   if (loading) {
     return (
       <div className="text-center mt-10">
@@ -39,7 +38,6 @@ const ComplaintDetails = () => {
       </div>
     );
   }
-
 
   if (!complaint) {
     return (
@@ -49,7 +47,6 @@ const ComplaintDetails = () => {
     );
   }
 
-
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
 
@@ -57,159 +54,142 @@ const ComplaintDetails = () => {
         Complaint Details
       </h2>
 
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-
         <div>
-          <p className="font-semibold">
-            Complaint ID
-          </p>
-          <p>
-            {complaint._id}
-          </p>
+          <p className="font-semibold">Complaint ID</p>
+          <p>{complaint._id}</p>
         </div>
 
-
         <div>
-          <p className="font-semibold">
-            Category
-          </p>
-          <p>
-            {complaint.category}
-          </p>
+          <p className="font-semibold">Category</p>
+          <p>{complaint.category}</p>
         </div>
 
-
         <div>
-          <p className="font-semibold">
-            Priority
-          </p>
-          <p>
-            {complaint.priority}
-          </p>
+          <p className="font-semibold">Priority</p>
+          <p>{complaint.priority}</p>
         </div>
 
-
         <div>
-          <p className="font-semibold">
-            Status
-          </p>
-          <p>
-            {complaint.status}
-          </p>
+          <p className="font-semibold">Status</p>
+          <p>{complaint.status}</p>
         </div>
 
-
         <div>
-          <p className="font-semibold">
-            Citizen
-          </p>
-          <p>
-            {complaint.reportedBy?.name || "N/A"}
-          </p>
+          <p className="font-semibold">Citizen</p>
+          <p>{complaint.reportedBy?.name || "N/A"}</p>
         </div>
 
-
         <div>
-          <p className="font-semibold">
-            Citizen Email
-          </p>
-          <p>
-            {complaint.reportedBy?.email || "N/A"}
-          </p>
+          <p className="font-semibold">Citizen Email</p>
+          <p>{complaint.reportedBy?.email || "N/A"}</p>
         </div>
 
-
         <div>
-          <p className="font-semibold">
-            Location
-          </p>
-          <p>
-            📍 {complaint.location?.address || "N/A"}
-          </p>
+          <p className="font-semibold">Location</p>
+          <p>📍 {complaint.address || "N/A"}</p>
         </div>
 
-
         <div>
-          <p className="font-semibold">
-            Reported On
-          </p>
-
+          <p className="font-semibold">Reported On</p>
           <p>
             {new Date(
               complaint.createdAt
             ).toLocaleDateString()}
           </p>
-
         </div>
-
 
       </div>
 
-
-
       <div className="mt-6">
-
         <p className="font-semibold mb-2">
           Complaint Title
         </p>
-
-        <p>
-          {complaint.title}
-        </p>
-
+        <p>{complaint.title}</p>
       </div>
 
-
-
       <div className="mt-6">
-
         <p className="font-semibold mb-2">
           Description
         </p>
-
-        <p>
-          {complaint.description}
-        </p>
-
+        <p>{complaint.description}</p>
       </div>
-
-
 
       {complaint.images &&
         complaint.images.length > 0 && (
+          <div className="mt-6">
+            <p className="font-semibold mb-3">
+              Complaint Images
+            </p>
 
-        <div className="mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {complaint.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt="Complaint"
+                  className="rounded-lg border h-48 w-full object-cover"
+                />
+              ))}
+            </div>
+          </div>
+      )}
 
-          <p className="font-semibold mb-3">
-            Complaint Images
-          </p>
+      {/* Department Remarks */}
 
+      <div className="mt-8">
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <h3 className="text-xl font-bold mb-4">
+          Department Remarks
+        </h3>
 
-            {complaint.images.map((image, index) => (
+        {complaint.comments &&
+        complaint.comments.length > 0 ? (
 
-              <img
-                key={index}
-                src={image}
-                alt="Complaint"
-                className="rounded-lg border h-48 w-full object-cover"
-              />
+          <div className="space-y-4">
+
+            {complaint.comments.map((comment) => (
+
+              <div
+                key={comment._id}
+                className="border rounded-lg p-4 bg-gray-50"
+              >
+
+                <div className="flex justify-between mb-2">
+
+                  <p className="font-semibold">
+                    {comment.user?.name}
+                  </p>
+
+                  <p className="text-sm text-gray-500">
+                    {new Date(
+                      comment.createdAt
+                    ).toLocaleString()}
+                  </p>
+
+                </div>
+
+                <p>{comment.message}</p>
+
+              </div>
 
             ))}
 
           </div>
 
-        </div>
+        ) : (
 
-      )}
+          <p className="text-gray-500">
+            No remarks added yet.
+          </p>
 
+        )}
+
+      </div>
 
     </div>
   );
 };
-
 
 export default ComplaintDetails;

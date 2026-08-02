@@ -25,27 +25,6 @@ const DepartmentLayout = ({ children }) => {
           </Link>
 
           <Link
-            to="/department/details"
-            className="block hover:text-teal-400"
-          >
-            Complaint Details
-          </Link>
-
-          <Link
-            to="/department/update"
-            className="block hover:text-teal-400"
-          >
-            Update Status
-          </Link>
-
-          <Link
-            to="/department/performance"
-            className="block hover:text-teal-400"
-          >
-            Performance
-          </Link>
-
-          <Link
             to="/department/profile"
             className="block hover:text-teal-400"
           >

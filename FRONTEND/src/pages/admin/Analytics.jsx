@@ -1,15 +1,36 @@
+import { useEffect, useState } from "react";
 import StatsCard from "../../components/dashboard/StatsCard";
 import AnalyticsChart from "../../components/dashboard/AnalyticsChart";
+import { getAnalytics } from "../../services/adminService";
 
 const Analytics = () => {
-  const chartData = [
-    { month: "Jan", complaints: 30 },
-    { month: "Feb", complaints: 45 },
-    { month: "Mar", complaints: 60 },
-    { month: "Apr", complaints: 40 },
-    { month: "May", complaints: 70 },
-    { month: "Jun", complaints: 55 },
-  ];
+  const [analytics, setAnalytics] = useState({
+    totalUsers: 0,
+    totalComplaints: 0,
+    resolvedComplaints: 0,
+    chartData: [],
+  });
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const data = await getAnalytics(token);
+
+      console.log("Analytics:", data);
+
+      if (data.success) {
+        setAnalytics(data);
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Failed to load analytics");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -20,24 +41,24 @@ const Analytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatsCard
           title="Total Users"
-          value="1,250"
+          value={analytics.totalUsers}
           color="bg-blue-500"
         />
 
         <StatsCard
           title="Complaints"
-          value="580"
+          value={analytics.totalComplaints}
           color="bg-orange-500"
         />
 
         <StatsCard
           title="Resolved"
-          value="430"
+          value={analytics.resolvedComplaints}
           color="bg-green-500"
         />
       </div>
 
-      <AnalyticsChart data={chartData} />
+      <AnalyticsChart data={analytics.chartData} />
     </div>
   );
 };

@@ -137,11 +137,11 @@ const DepartmentDashboard = () => {
               </Link>
 
               <Link
-                to="/department/update"
-                className="bg-yellow-500 text-white text-center py-3 rounded-lg hover:bg-yellow-600"
-              >
-                Update Complaint
-              </Link>
+  to="/department/complaints"
+  className="bg-yellow-500 text-white text-center py-3 rounded-lg hover:bg-yellow-600"
+>
+  Update Complaint
+</Link>
             </div>
           </div>
         </>

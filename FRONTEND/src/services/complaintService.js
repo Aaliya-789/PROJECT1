@@ -3,6 +3,24 @@ import axios from "axios";
 const API_URL = "http://localhost:5000/api/complaints";
 
 // ==============================
+// Create Complaint
+// ==============================
+export const createComplaint = async (token, complaintData) => {
+  const response = await axios.post(
+    API_URL,
+    complaintData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};
+
+// ==============================
 // Get All Complaints
 // ==============================
 export const getAllComplaints = async (token) => {
@@ -11,6 +29,22 @@ export const getAllComplaints = async (token) => {
       Authorization: `Bearer ${token}`,
     },
   });
+
+  return response.data;
+};
+
+// ==============================
+// Get Citizen Complaints
+// ==============================
+export const getMyComplaints = async (token) => {
+  const response = await axios.get(
+    `${API_URL}/my`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   return response.data;
 };
@@ -34,11 +68,15 @@ export const getComplaintById = async (token, id) => {
 export const updateComplaintStatus = async (
   token,
   complaintId,
-  status
+  status,
+  message
 ) => {
   const response = await axios.put(
     `${API_URL}/${complaintId}/status`,
-    { status },
+    {
+      status,
+      message,
+    },
     {
       headers: {
         Authorization: `Bearer ${token}`,

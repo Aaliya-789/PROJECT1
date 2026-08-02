@@ -11,11 +11,11 @@ const UpdateStatus = () => {
 
   const [complaint, setComplaint] = useState(null);
   const [status, setStatus] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     fetchComplaint();
   }, []);
-
 
   const fetchComplaint = async () => {
     try {
@@ -32,7 +32,6 @@ const UpdateStatus = () => {
     }
   };
 
-
   const handleUpdate = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -40,7 +39,8 @@ const UpdateStatus = () => {
       await updateComplaintStatus(
         token,
         id,
-        status
+        status,
+        message
       );
 
       alert("Status updated successfully");
@@ -58,7 +58,6 @@ const UpdateStatus = () => {
     }
   };
 
-
   if (!complaint) {
     return (
       <div className="text-center mt-10">
@@ -67,7 +66,6 @@ const UpdateStatus = () => {
     );
   }
 
-
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
 
@@ -75,42 +73,22 @@ const UpdateStatus = () => {
         Update Complaint Status
       </h2>
 
-
       <div className="mb-5">
-        <p className="font-semibold">
-          Complaint
-        </p>
-
-        <p>
-          {complaint.title}
-        </p>
+        <p className="font-semibold">Complaint</p>
+        <p>{complaint.title}</p>
       </div>
 
-
       <div className="mb-5">
-        <p className="font-semibold">
-          Location
-        </p>
-
-        <p>
-          {complaint.location?.address || "N/A"}
-        </p>
+        <p className="font-semibold">Location</p>
+        <p>{complaint.address}</p>
       </div>
 
-
       <div className="mb-5">
-        <p className="font-semibold">
-          Current Status
-        </p>
-
-        <p>
-          {complaint.status}
-        </p>
+        <p className="font-semibold">Current Status</p>
+        <p>{complaint.status}</p>
       </div>
 
-
-      <div className="mb-6">
-
+      <div className="mb-5">
         <label className="font-semibold">
           Change Status
         </label>
@@ -120,27 +98,26 @@ const UpdateStatus = () => {
           onChange={(e) => setStatus(e.target.value)}
           className="border rounded-lg p-3 w-full mt-2"
         >
-
-          <option value="Assigned">
-            Assigned
-          </option>
-
-          <option value="In Progress">
-            In Progress
-          </option>
-
-          <option value="Resolved">
-            Resolved
-          </option>
-
-          <option value="Rejected">
-            Rejected
-          </option>
-
+          <option value="Assigned">Assigned</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Resolved">Resolved</option>
+          <option value="Rejected">Rejected</option>
         </select>
-
       </div>
 
+      <div className="mb-6">
+        <label className="font-semibold">
+          Remarks
+        </label>
+
+        <textarea
+          rows="4"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Enter remarks..."
+          className="border rounded-lg p-3 w-full mt-2"
+        />
+      </div>
 
       <button
         onClick={handleUpdate}
@@ -148,7 +125,6 @@ const UpdateStatus = () => {
       >
         Update Status
       </button>
-
 
     </div>
   );

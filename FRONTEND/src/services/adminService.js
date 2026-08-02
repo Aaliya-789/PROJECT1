@@ -16,6 +16,19 @@ export const getDashboardStats = async (token) => {
 };
 
 // ==============================
+// Get Analytics
+// ==============================
+export const getAnalytics = async (token) => {
+  const response = await axios.get(`${API_URL}/analytics`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+
+// ==============================
 // Get All Citizens
 // ==============================
 export const getAllCitizens = async (token) => {
@@ -40,6 +53,18 @@ export const deleteCitizen = async (token, citizenId) => {
       },
     }
   );
+
+  return response.data;
+};
+// ==============================
+// Get Reports
+// ==============================
+export const getReports = async (token) => {
+  const response = await axios.get(`${API_URL}/reports`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return response.data;
 };

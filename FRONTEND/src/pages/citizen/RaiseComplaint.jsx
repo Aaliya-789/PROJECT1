@@ -3,6 +3,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 import ComplaintGuidelines from "../../components/citizen/ComplaintGuidelines";
+import { createComplaint } from "../../services/complaintService";
 
 
 const RaiseComplaint = () => {
@@ -15,7 +16,8 @@ const RaiseComplaint = () => {
     category: "",
     otherCategory: "",
     description: "",
-    location: "",
+    address: "",
+    priority: "Medium",
   });
 
 
@@ -36,68 +38,156 @@ const RaiseComplaint = () => {
 
   const handleImageChange = (e) => {
 
-    const selectedFiles = Array.from(e.target.files);
-
-    setImages(selectedFiles);
+    setImages(
+      Array.from(e.target.files)
+    );
 
   };
 
 
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
 
-  // Validation
-  if (
-    !formData.title ||
-    !formData.category ||
-    !formData.description ||
-    !formData.location ||
-    (formData.category === "Others" &&
-      !formData.otherCategory)
-  ) {
-    toast.error("Please fill all required fields");
-    return;
-  }
+    e.preventDefault();
 
-  // Create complaint object
-  const complaintData = {
-    id: Date.now(),
-    title: formData.title,
-    category:
-      formData.category === "Others"
-        ? formData.otherCategory
-        : formData.category,
-    description: formData.description,
-    location: formData.location,
-    status: "Submitted",
-    date: new Date().toLocaleDateString(),
-    images,
+
+
+    if (
+      !formData.title ||
+      !formData.category ||
+      !formData.description ||
+      !formData.address
+    ) {
+
+      toast.error(
+        "Please fill all required fields"
+      );
+
+      return;
+    }
+
+
+
+    try {
+
+
+      const token =
+        localStorage.getItem("token");
+
+
+
+      const complaintData =
+        new FormData();
+
+
+
+      complaintData.append(
+        "title",
+        formData.title
+      );
+
+
+
+      complaintData.append(
+        "category",
+        formData.category === "Others"
+          ? formData.otherCategory
+          : formData.category
+      );
+
+
+
+      complaintData.append(
+        "description",
+        formData.description
+      );
+
+
+
+      complaintData.append(
+        "priority",
+        formData.priority
+      );
+
+
+
+      // Backend expects location object
+      complaintData.append(
+        "location[address]",
+        formData.address
+      );
+
+
+
+      complaintData.append(
+        "location[latitude]",
+        "18.5204"
+      );
+
+
+
+      complaintData.append(
+        "location[longitude]",
+        "73.8567"
+      );
+
+
+
+      images.forEach((image)=>{
+
+        complaintData.append(
+          "images",
+          image
+        );
+
+      });
+
+
+
+      const response =
+        await createComplaint(
+          token,
+          complaintData
+        );
+
+
+
+      console.log(
+        "Complaint Created:",
+        response
+      );
+
+
+
+      toast.success(
+        "Complaint submitted successfully"
+      );
+
+
+
+      navigate(
+        "/citizen/complaint-history"
+      );
+
+
+
+    } catch(error) {
+
+
+      console.log(
+        "Complaint Error:",
+        error
+      );
+
+
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to submit complaint"
+      );
+
+    }
+
   };
-
-  // Fetch previously stored complaints
-  const existingComplaints =
-    JSON.parse(localStorage.getItem("complaints")) || [];
-
-  // Add the new complaint
-  existingComplaints.push(complaintData);
-
-  // Save updated complaints array
-  localStorage.setItem(
-    "complaints",
-    JSON.stringify(existingComplaints)
-  );
-
-  // Success popup
-  toast.success(
-    "Your complaint has been registered successfully!"
-  );
-
-  // Redirect after 1.5 seconds
-  setTimeout(() => {
-    navigate("/citizen/dashboard");
-  }, 1500);
-};
 
 
 
@@ -109,14 +199,8 @@ const RaiseComplaint = () => {
       <div className="max-w-4xl mx-auto">
 
 
-        <h1
-          className="
-          text-4xl
-          font-bold
-          text-[#0F172A]
-          mb-6
-          "
-        >
+
+        <h1 className="text-4xl font-bold text-[#0F172A] mb-6">
           Raise a Complaint
         </h1>
 
@@ -126,24 +210,15 @@ const RaiseComplaint = () => {
 
 
 
-        <div
-          className="
-          bg-white
-          rounded-2xl
-          shadow-lg
-          p-8
-          "
-        >
+        <div className="bg-white rounded-2xl shadow-lg p-8">
 
 
           <form onSubmit={handleSubmit}>
 
 
-            {/* Complaint Title */}
-
             <div className="mb-5">
 
-              <label className="block font-semibold text-gray-700 mb-2">
+              <label className="block font-semibold mb-2">
                 Complaint Title *
               </label>
 
@@ -153,17 +228,7 @@ const RaiseComplaint = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Example: Garbage not collected"
-                className="
-                w-full
-                border
-                rounded-xl
-                px-4
-                py-3
-                focus:outline-none
-                focus:ring-2
-                focus:ring-teal-400
-                "
+                className="w-full border rounded-xl px-4 py-3"
               />
 
             </div>
@@ -171,13 +236,10 @@ const RaiseComplaint = () => {
 
 
 
-            {/* Category */}
-
             <div className="mb-5">
 
-
-              <label className="block font-semibold text-gray-700 mb-2">
-                Complaint Category *
+              <label className="block font-semibold mb-2">
+                Category *
               </label>
 
 
@@ -185,110 +247,41 @@ const RaiseComplaint = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="
-                w-full
-                border
-                rounded-xl
-                px-4
-                py-3
-                focus:outline-none
-                focus:ring-2
-                focus:ring-teal-400
-                "
+                className="w-full border rounded-xl px-4 py-3"
               >
 
                 <option value="">
                   Select Category
                 </option>
 
-
-                <option>
-                  Garbage
-                </option>
-
-
-                <option>
-                  Pothole
-                </option>
-
-
-                <option>
-                  Water Leakage
-                </option>
-
-
-                <option>
-                  Broken Street Light
-                </option>
-
-
-                <option>
-                  Traffic Signal
-                </option>
-
-
-                <option>
-                  Sewage
-                </option>
-
-
-                <option>
-                  Road Damage
-                </option>
-
-
-                <option>
-                  Illegal Dumping
-                </option>
-
-
-                <option>
-                  Others
-                </option>
-
+                <option>Garbage</option>
+                <option>Pothole</option>
+                <option>Water Leakage</option>
+                <option>Broken Street Light</option>
+                <option>Traffic Signal</option>
+                <option>Sewage</option>
+                <option>Road Damage</option>
+                <option>Illegal Dumping</option>
+                <option>Others</option>
 
               </select>
-
 
             </div>
 
 
 
 
-
-            {/* Other Category */}
-
             {
               formData.category === "Others" && (
 
-                <div className="mb-5">
-
-
-                  <label className="block font-semibold text-gray-700 mb-2">
-                    Specify Complaint Type *
-                  </label>
-
-
-                  <input
-                    type="text"
-                    name="otherCategory"
-                    value={formData.otherCategory}
-                    onChange={handleChange}
-                    placeholder="Enter complaint type"
-                    className="
-                    w-full
-                    border
-                    rounded-xl
-                    px-4
-                    py-3
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-teal-400
-                    "
-                  />
-
-
-                </div>
+                <input
+                  type="text"
+                  name="otherCategory"
+                  placeholder="Specify complaint type"
+                  value={formData.otherCategory}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-4 py-3 mb-5"
+                />
 
               )
             }
@@ -297,35 +290,20 @@ const RaiseComplaint = () => {
 
 
 
-
-            {/* Description */}
-
             <div className="mb-5">
 
-
-              <label className="block font-semibold text-gray-700 mb-2">
-                Complaint Description *
+              <label className="block font-semibold mb-2">
+                Description *
               </label>
 
 
               <textarea
+                rows="5"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                rows="5"
-                placeholder="Describe the issue in detail..."
-                className="
-                w-full
-                border
-                rounded-xl
-                px-4
-                py-3
-                focus:outline-none
-                focus:ring-2
-                focus:ring-teal-400
-                "
+                className="w-full border rounded-xl px-4 py-3"
               />
-
 
             </div>
 
@@ -333,34 +311,20 @@ const RaiseComplaint = () => {
 
 
 
-            {/* Location */}
-
             <div className="mb-5">
 
-
-              <label className="block font-semibold text-gray-700 mb-2">
-                Location *
+              <label className="block font-semibold mb-2">
+                Address *
               </label>
 
 
               <input
                 type="text"
-                name="location"
-                value={formData.location}
+                name="address"
+                value={formData.address}
                 onChange={handleChange}
-                placeholder="Enter address or nearby landmark"
-                className="
-                w-full
-                border
-                rounded-xl
-                px-4
-                py-3
-                focus:outline-none
-                focus:ring-2
-                focus:ring-teal-400
-                "
+                className="w-full border rounded-xl px-4 py-3"
               />
-
 
             </div>
 
@@ -368,105 +332,52 @@ const RaiseComplaint = () => {
 
 
 
+            <div className="mb-5">
 
-            {/* Image Upload */}
+              <label className="block font-semibold mb-2">
+                Priority
+              </label>
+
+
+              <select
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+                className="w-full border rounded-xl px-4 py-3"
+              >
+
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+                <option>Emergency</option>
+
+              </select>
+
+            </div>
+
+
+
+
 
             <div className="mb-6">
 
-
-              <label className="block font-semibold text-gray-700 mb-2">
-                Upload Images (Optional)
+              <label className="block font-semibold mb-2">
+                Upload Images
               </label>
 
 
-
-              <label
-                className="
-                border-2
-                border-dashed
-                border-teal-400
-                rounded-xl
-                p-8
-                flex
-                flex-col
-                items-center
-                justify-center
-                cursor-pointer
-                hover:bg-teal-50
-                transition
-                "
-              >
-
-
-                <div className="text-4xl mb-3">
-                  📷
-                </div>
-
-
-                <p className="font-medium text-gray-700">
-                  Click to upload images
-                </p>
-
-
-                <p className="text-sm text-gray-500 mt-1">
-                  JPG, JPEG, PNG supported
-                </p>
-
-
-
-                <input
-                  type="file"
-                  multiple
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-
-
-              </label>
-
-
-
-
-
-              {
-                images.length > 0 && (
-
-                  <div className="mt-4 bg-gray-50 rounded-xl p-4">
-
-
-                    <p className="font-semibold text-gray-700 mb-2">
-                      {images.length} file(s) selected
-                    </p>
-
-
-                    <ul className="space-y-1 text-sm text-gray-600">
-
-                      {
-                        images.map((image,index)=>(
-                          <li key={index}>
-                            📄 {image.name}
-                          </li>
-                        ))
-                      }
-
-                    </ul>
-
-
-                  </div>
-
-                )
-              }
-
-
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageChange}
+              />
 
             </div>
 
 
 
 
-
-            {/* Submit Button */}
 
             <button
               type="submit"
@@ -478,8 +389,6 @@ const RaiseComplaint = () => {
               rounded-xl
               font-semibold
               hover:bg-teal-600
-              transition
-              shadow-md
               "
             >
 

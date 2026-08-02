@@ -34,7 +34,6 @@ import DepartmentDashboard from "./pages/department/DepartmentDashboard";
 import AssignedComplaints from "./pages/department/AssignedComplaints";
 import ComplaintDetailsDepartment from "./pages/department/ComplaintDetails";
 import UpdateStatus from "./pages/department/UpdateStatus";
-import Performance from "./pages/department/Performance";
 import DepartmentProfile from "./pages/department/DepartmentProfile";
 
 function App() {
@@ -195,14 +194,6 @@ function App() {
         }
       />
 
-      <Route
-        path="/department/performance"
-        element={
-          <DepartmentLayout>
-            <Performance />
-          </DepartmentLayout>
-        }
-      />
 
       <Route
         path="/department/profile"
