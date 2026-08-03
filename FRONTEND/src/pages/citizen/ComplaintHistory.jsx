@@ -145,8 +145,7 @@ const ComplaintHistory = () => {
 
                   <p>
                     <strong>Location:</strong>{" "}
-                    {complaint.location?.address || "N/A"}
-                  </p>
+{complaint.address || "N/A"}                  </p>
 
 
                   <p>

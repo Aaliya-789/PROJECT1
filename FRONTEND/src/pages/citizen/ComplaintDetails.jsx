@@ -1,64 +1,101 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
+import { getComplaintById } from "../../services/complaintService";
 
 const ComplaintDetails = () => {
 
   const { id } = useParams();
 
+  const [complaint, setComplaint] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetchComplaint();
+  }, []);
 
-  // Later this data will come from backend API
-  const complaint = {
-    id: id || "CC001",
-    title: "Garbage not collected",
-    category: "Garbage",
-    description:
-      "Waste has not been collected near the community park for the last three days.",
-    location: "ABC Road",
-    date: "28 July 2026",
-    status: "Submitted",
-    department: "Not Assigned Yet",
-    images: [],
+  const fetchComplaint = async () => {
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      const data = await getComplaintById(token, id);
+
+      console.log(data);
+
+      setComplaint(data.complaint);
+
+    } catch (error) {
+
+      console.log(error);
+      alert("Failed to load complaint");
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
   };
 
 
+  if (loading) {
+    return (
+      <div className="text-center mt-10">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!complaint) {
+    return (
+      <div className="text-center mt-10">
+        Complaint not found.
+      </div>
+    );
+  }
 
   const timeline = [
     {
       title: "Submitted",
       completed: true,
     },
-
     {
       title: "Under Review",
-      completed: false,
+      completed: [
+        "Under Review",
+        "Assigned",
+        "In Progress",
+        "Resolved",
+      ].includes(complaint.status),
     },
-
     {
       title: "Assigned",
-      completed: false,
+      completed: [
+        "Assigned",
+        "In Progress",
+        "Resolved",
+      ].includes(complaint.status),
     },
-
     {
       title: "In Progress",
-      completed: false,
+      completed: [
+        "In Progress",
+        "Resolved",
+      ].includes(complaint.status),
     },
-
     {
       title: "Resolved",
-      completed: false,
+      completed: complaint.status === "Resolved",
     },
   ];
-
 
 
   return (
 
     <div className="min-h-screen bg-gray-50 p-6">
 
-
       <div className="max-w-5xl mx-auto">
-
 
         <h1
           className="
@@ -70,9 +107,6 @@ const ComplaintDetails = () => {
         >
           Complaint Details
         </h1>
-
-
-
 
         {/* Complaint Information */}
 
@@ -86,9 +120,7 @@ const ComplaintDetails = () => {
           "
         >
 
-
           <div className="flex justify-between items-start">
-
 
             <div>
 
@@ -102,15 +134,11 @@ const ComplaintDetails = () => {
                 {complaint.title}
               </h2>
 
-
               <p className="text-gray-500 mt-2">
-                Complaint ID: {complaint.id}
+                Complaint ID: {complaint._id}
               </p>
 
-
             </div>
-
-
 
             <span
               className="
@@ -125,12 +153,7 @@ const ComplaintDetails = () => {
               {complaint.status}
             </span>
 
-
           </div>
-
-
-
-
 
           <div
             className="
@@ -144,27 +167,25 @@ const ComplaintDetails = () => {
               <b>Category:</b> {complaint.category}
             </p>
 
-
             <p>
-              <b>Location:</b> {complaint.location}
+              <b>Location:</b> {complaint.address}
             </p>
 
-
             <p>
-              <b>Date Submitted:</b> {complaint.date}
+              <b>Date Submitted:</b>{" "}
+              {new Date(complaint.createdAt).toLocaleString()}
             </p>
 
-
             <p>
-              <b>Assigned Department:</b> {complaint.department}
+              <b>Assigned Department:</b>{" "}
+              {complaint.assignedDepartment?.departmentName || "Not Assigned"}
             </p>
 
+            <p>
+              <b>Priority:</b> {complaint.priority}
+            </p>
 
           </div>
-
-
-
-
 
           <div className="mt-6">
 
@@ -172,20 +193,13 @@ const ComplaintDetails = () => {
               Description
             </h3>
 
-
             <p className="text-gray-600">
               {complaint.description}
             </p>
 
           </div>
 
-
         </div>
-
-
-
-
-
 
         {/* Images */}
 
@@ -203,30 +217,37 @@ const ComplaintDetails = () => {
             Uploaded Images
           </h2>
 
-
           {
-            complaint.images.length === 0 ? (
+            complaint.images &&
+            complaint.images.length > 0 ? (
+
+              <div className="grid grid-cols-2 gap-4">
+
+                {
+                  complaint.images.map((image, index) => (
+
+                    <img
+                      key={index}
+                      src={image}
+                      alt="Complaint"
+                      className="rounded-lg border h-64 w-full object-cover"
+                    />
+
+                  ))
+                }
+
+              </div>
+
+            ) : (
 
               <p className="text-gray-500">
                 No images uploaded.
               </p>
 
-            ) : (
-
-              <div>
-                Images will appear here.
-              </div>
-
             )
           }
 
-
         </div>
-
-
-
-
-
 
         {/* Status Timeline */}
 
@@ -240,24 +261,19 @@ const ComplaintDetails = () => {
           "
         >
 
-
           <h2 className="text-xl font-bold mb-6">
             Complaint Status Timeline
           </h2>
 
-
-
           <div className="space-y-5">
 
-
             {
-              timeline.map((item,index)=>(
+              timeline.map((item, index) => (
 
                 <div
                   key={index}
                   className="flex items-center gap-4"
                 >
-
 
                   <div
                     className={`
@@ -270,10 +286,8 @@ const ComplaintDetails = () => {
                     font-bold
                     ${
                       item.completed
-                      ?
-                      "bg-teal-500 text-white"
-                      :
-                      "bg-gray-200 text-gray-500"
+                        ? "bg-teal-500 text-white"
+                        : "bg-gray-200 text-gray-500"
                     }
                     `}
                   >
@@ -282,16 +296,12 @@ const ComplaintDetails = () => {
 
                   </div>
 
-
-
                   <p
                     className={`
                     ${
                       item.completed
-                      ?
-                      "text-teal-600 font-semibold"
-                      :
-                      "text-gray-500"
+                        ? "text-teal-600 font-semibold"
+                        : "text-gray-500"
                     }
                     `}
                   >
@@ -300,23 +310,14 @@ const ComplaintDetails = () => {
 
                   </p>
 
-
-
                 </div>
 
               ))
             }
 
-
           </div>
 
-
         </div>
-
-
-
-
-
 
         {/* Comments */}
 
@@ -329,29 +330,50 @@ const ComplaintDetails = () => {
           "
         >
 
-
           <h2 className="text-xl font-bold mb-4">
-            Comments
+            Officer Remarks
           </h2>
 
+          {
+            complaint.comments &&
+            complaint.comments.length > 0 ? (
 
-          <p className="text-gray-500">
-            No comments yet.
-          </p>
+              complaint.comments.map((comment) => (
 
+                <div
+                  key={comment._id}
+                  className="border-b py-3"
+                >
+
+                  <p className="font-semibold">
+                    {comment.user?.name}
+                  </p>
+
+                  <p className="text-gray-600">
+                    {comment.message}
+                  </p>
+
+                </div>
+
+              ))
+
+            ) : (
+
+              <p className="text-gray-500">
+                No remarks yet.
+              </p>
+
+            )
+          }
 
         </div>
 
-
-
       </div>
-
 
     </div>
 
   );
 
 };
-
 
 export default ComplaintDetails;

@@ -1,4 +1,6 @@
 import DashboardCard from "../../components/citizen/DashboardCard";
+import { useEffect, useState } from "react";
+import { getMyComplaints } from "../../services/complaintService";
 
 import {
   FaClipboardList,
@@ -10,14 +12,34 @@ import {
 import { Link } from "react-router-dom";
 
 const CitizenDashboard = () => {
-  // Dummy complaints data
-  const complaints = [];
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Complaint statistics
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
+
+  const fetchComplaints = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await getMyComplaints(token);
+
+      setComplaints(response.complaints || []);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const totalComplaints = complaints.length;
 
   const pendingComplaints = complaints.filter(
-    (complaint) => complaint.status === "Pending"
+    (complaint) =>
+      complaint.status === "Submitted" ||
+      complaint.status === "Under Review" ||
+      complaint.status === "Assigned"
   ).length;
 
   const inProgressComplaints = complaints.filter(
@@ -27,6 +49,14 @@ const CitizenDashboard = () => {
   const resolvedComplaints = complaints.filter(
     (complaint) => complaint.status === "Resolved"
   ).length;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading dashboard...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -119,7 +149,7 @@ const CitizenDashboard = () => {
 
       </div>
 
-      {/* Conditional Rendering */}
+      {/* Recent Complaints */}
 
       {totalComplaints === 0 ? (
 
@@ -156,14 +186,15 @@ const CitizenDashboard = () => {
 
           <div className="space-y-4">
 
-            {complaints.map((complaint) => (
+            {complaints.slice(0, 5).map((complaint) => (
 
               <div
-                key={complaint.id}
+                key={complaint._id}
                 className="border rounded-xl p-4 flex justify-between items-center"
               >
 
                 <div>
+
                   <h3 className="font-semibold text-lg">
                     {complaint.title}
                   </h3>
@@ -171,10 +202,17 @@ const CitizenDashboard = () => {
                   <p className="text-gray-500">
                     Status: {complaint.status}
                   </p>
+
+                  <p className="text-sm text-gray-400">
+                    {new Date(
+                      complaint.createdAt
+                    ).toLocaleDateString()}
+                  </p>
+
                 </div>
 
                 <Link
-                  to="/citizen/details"
+                  to={`/citizen/details/${complaint._id}`}
                   className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition"
                 >
                   View Details
