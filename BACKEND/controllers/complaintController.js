@@ -296,12 +296,18 @@ const updateComplaintStatus = async (req, res) => {
     }
 
     // Notify citizen
-    await Notification.create({
-      user: complaint.reportedBy,
-      complaint: complaint._id,
-      title: "Complaint Status Updated",
-      message: `Your complaint status has been changed to "${complaint.status}".`,
-    });
+await Notification.create({
+  user: complaint.reportedBy,
+  complaint: complaint._id,
+  title: "Complaint Updated",
+  message: `Status: ${complaint.status}
+
+${
+  req.body.message
+    ? `Remark: ${req.body.message}`
+    : "No remarks provided."
+}`,
+});
 
     res.status(200).json({
       success: true,
