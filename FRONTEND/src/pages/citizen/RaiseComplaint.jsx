@@ -31,22 +31,38 @@ const RaiseComplaint = () => {
 
   const handleImageChange = (e) => {
 
-    setImages(
-      Array.from(e.target.files)
-    );
+  const selectedImages = Array.from(e.target.files);
 
-  };
+  const totalImages = [...images, ...selectedImages];
+
+  if (totalImages.length > 5) {
+    toast.error("Maximum 5 images allowed");
+    return;
+  }
+
+  setImages(totalImages);
+
+};
+const removeImage = (index) => {
+
+  setImages(
+    images.filter((_, i) => i !== index)
+  );
+
+};
 
   const handleSubmit = async (e) => {
 
     e.preventDefault();
 
     if (
-      !formData.title ||
-      !formData.category ||
-      !formData.description ||
-      !formData.address
-    ) {
+  !formData.title.trim() ||
+  !formData.category ||
+  !formData.description.trim() ||
+  !formData.address.trim() ||
+  (formData.category === "Others" &&
+    !formData.otherCategory.trim())
+)  {
 
       toast.error(
         "Please fill all required fields"
@@ -299,14 +315,17 @@ const RaiseComplaint = () => {
                 "
               >
                 📁 Choose Files
-
+<p className="mt-2 text-sm text-gray-500">
+  {images.length}/5 images selected
+</p>
                 <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
+  type="file"
+  multiple
+  accept="image/*"
+  onChange={handleImageChange}
+  className="hidden"
+  disabled={images.length >= 5}
+/>
 
               </label>
 
@@ -322,17 +341,29 @@ const RaiseComplaint = () => {
                     <ul className="space-y-2">
 
                       {
-                        images.map((image, index) => (
+  images.map((image, index) => (
 
-                          <li
-                            key={index}
-                            className="text-gray-600"
-                          >
-                            📷 {image.name}
-                          </li>
+    <div
+      key={index}
+      className="flex justify-between items-center bg-white border rounded-lg px-3 py-2"
+    >
 
-                        ))
-                      }
+      <span>
+        📷 {image.name}
+      </span>
+
+      <button
+        type="button"
+        onClick={() => removeImage(index)}
+        className="text-red-500 hover:text-red-700 font-semibold"
+      >
+        Remove
+      </button>
+
+    </div>
+
+  ))
+}
 
                     </ul>
 
