@@ -52,111 +52,94 @@ const removeImage = (index) => {
 };
 
   const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    e.preventDefault();
+  console.log(formData);
 
-    if (
-  !formData.title.trim() ||
-  !formData.category ||
-  !formData.description.trim() ||
-  !formData.address.trim() ||
-  (formData.category === "Others" &&
-    !formData.otherCategory.trim())
-)  {
+  if (
+    !formData.title.trim() ||
+    !formData.category ||
+    !formData.description.trim() ||
+    !formData.address.trim() ||
+    (formData.category === "Others" &&
+      !formData.otherCategory.trim())
+  ) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
-      toast.error(
-        "Please fill all required fields"
-      );
+  try {
+    const token = localStorage.getItem("token");
 
-      return;
-    }
+    const complaintData = new FormData();
 
-    try {
+    complaintData.append("title", formData.title);
 
-      const token =
-        localStorage.getItem("token");
+    complaintData.append(
+      "category",
+      formData.category === "Others"
+        ? formData.otherCategory
+        : formData.category
+    );
 
-      const complaintData =
-        new FormData();
+    complaintData.append(
+      "description",
+      formData.description
+    );
 
-      complaintData.append(
-        "title",
-        formData.title
-      );
+    complaintData.append(
+      "priority",
+      formData.priority
+    );
 
-      complaintData.append(
-        "category",
-        formData.category === "Others"
-          ? formData.otherCategory
-          : formData.category
-      );
+    complaintData.append(
+      "address",
+      formData.address
+    );
 
-      complaintData.append(
-        "description",
-        formData.description
-      );
+    complaintData.append(
+      "latitude",
+      "18.5204"
+    );
 
-      complaintData.append(
-        "priority",
-        formData.priority
-      );
+    complaintData.append(
+      "longitude",
+      "73.8567"
+    );
 
-      complaintData.append(
-        "location[address]",
-        formData.address
-      );
+    images.forEach((image) => {
+      complaintData.append("images", image);
+    });
 
-      complaintData.append(
-        "location[latitude]",
-        "18.5204"
-      );
+    const response = await createComplaint(
+      token,
+      complaintData
+    );
 
-      complaintData.append(
-        "location[longitude]",
-        "73.8567"
-      );
+    console.log("Complaint Created:", response);
 
-      images.forEach((image) => {
+    toast.success(
+      "Complaint submitted successfully"
+    );
 
-        complaintData.append(
-          "images",
-          image
-        );
+    navigate("/citizen/complaint-history");
 
-      });
+  } catch (error) {
+    console.log(error);
 
-      const response =
-        await createComplaint(
-          token,
-          complaintData
-        );
-
-      console.log(
-        "Complaint Created:",
-        response
-      );
-
-      toast.success(
-        "Complaint submitted successfully"
-      );
-
-      navigate(
-        "/citizen/complaint-history"
-      );
-
-    } catch (error) {
-
-      console.log(
-        "Complaint Error:",
-        error
-      );
+    if (error.response) {
+      console.log(error.response.data);
 
       toast.error(
-        error.response?.data?.message ||
+        error.response.data.message ||
         "Failed to submit complaint"
       );
-
+    } else {
+      toast.error("Cannot connect to server");
     }
+  }
+};
+  
 
   };
 
@@ -402,6 +385,6 @@ const removeImage = (index) => {
 
   );
 
-};
+;
 
 export default RaiseComplaint;

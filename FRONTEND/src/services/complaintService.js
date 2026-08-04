@@ -12,7 +12,6 @@ export const createComplaint = async (token, complaintData) => {
     {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
       },
     }
   );
@@ -53,11 +52,14 @@ export const getMyComplaints = async (token) => {
 // Get Complaint By ID
 // ==============================
 export const getComplaintById = async (token, id) => {
-  const response = await axios.get(`${API_URL}/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.get(
+    `${API_URL}/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   return response.data;
 };
@@ -97,7 +99,9 @@ export const assignComplaintToDepartment = async (
 ) => {
   const response = await axios.put(
     `${API_URL}/${complaintId}/assign`,
-    { departmentId },
+    {
+      departmentId,
+    },
     {
       headers: {
         Authorization: `Bearer ${token}`,
