@@ -15,23 +15,33 @@ const createComplaint = async (req, res) => {
     console.log("FILES:", req.files);
     console.log("CONTENT-TYPE:", req.headers["content-type"]);
 
-    const {
-      title,
-      description,
-      category,
-      priority,
-      latitude,
-      longitude,
-      address,
-    } = req.body;
+    const title = req.body.title;
+    const description = req.body.description;
+    const category = req.body.category;
+    const priority = req.body.priority || "Medium";
+
+    // Supports nested FormData:
+    // location[address]
+    // location[latitude]
+    // location[longitude]
+    const address = req.body.address;
+const latitude = Number(req.body.latitude);
+const longitude = Number(req.body.longitude);
+
+    console.log("TITLE:", title);
+    console.log("DESCRIPTION:", description);
+    console.log("CATEGORY:", category);
+    console.log("ADDRESS:", address);
+    console.log("LATITUDE:", latitude);
+    console.log("LONGITUDE:", longitude);
 
     if (
       !title ||
       !description ||
       !category ||
-      !latitude ||
-      !longitude ||
-      !address
+      !address ||
+      isNaN(latitude) ||
+      isNaN(longitude)
     ) {
       return res.status(400).json({
         success: false,
@@ -39,7 +49,7 @@ const createComplaint = async (req, res) => {
       });
     }
 
-    // Upload Images to Cloudinary
+    // Upload images to Cloudinary
     const uploadedImages = [];
 
     if (req.files && req.files.length > 0) {
@@ -72,16 +82,12 @@ const createComplaint = async (req, res) => {
     });
 
     // Create Notification
-    console.log("Creating notification...");
-
     await Notification.create({
       user: req.user._id,
       complaint: complaint._id,
       title: "Complaint Submitted",
       message: `Your complaint "${complaint.title}" has been submitted successfully.`,
     });
-
-    console.log("Notification created successfully");
 
     res.status(201).json({
       success: true,
@@ -167,13 +173,8 @@ const getAllComplaints = async (req, res) => {
 
     const filter = {};
 
-    if (status) {
-      filter.status = status;
-    }
-
-    if (category) {
-      filter.category = category;
-    }
+    if (status) filter.status = status;
+    if (category) filter.category = category;
 
     if (search) {
       filter.$or = [
@@ -208,7 +209,6 @@ const getAllComplaints = async (req, res) => {
       count: complaints.length,
       complaints,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -216,6 +216,7 @@ const getAllComplaints = async (req, res) => {
     });
   }
 };
+
 // ==========================================
 // Update Complaint Status
 // PUT /api/complaints/:id/status
@@ -231,7 +232,6 @@ const updateComplaintStatus = async (req, res) => {
       });
     }
 
-    // Department authorization
     if (req.user.role === "Department") {
       const department = await Department.findOne({
         headOfficer: req.user._id,
@@ -251,8 +251,7 @@ const updateComplaintStatus = async (req, res) => {
       ) {
         return res.status(403).json({
           success: false,
-          message:
-            "You are not authorized to update this complaint",
+          message: "You are not authorized to update this complaint",
         });
       }
     }
@@ -273,14 +272,12 @@ const updateComplaintStatus = async (req, res) => {
       });
     }
 
-    // Update complaint status
     complaint.status = req.body.status;
 
     await complaint.save({
       validateModifiedOnly: true,
     });
 
-    // Save comment/remark if provided
     if (req.body.message && req.body.message.trim() !== "") {
       const comment = await Comment.create({
         complaint: complaint._id,
@@ -295,26 +292,24 @@ const updateComplaintStatus = async (req, res) => {
       });
     }
 
-    // Notify citizen
-await Notification.create({
-  user: complaint.reportedBy,
-  complaint: complaint._id,
-  title: "Complaint Updated",
-  message: `Status: ${complaint.status}
+    await Notification.create({
+      user: complaint.reportedBy,
+      complaint: complaint._id,
+      title: "Complaint Updated",
+      message: `Status: ${complaint.status}
 
 ${
   req.body.message
     ? `Remark: ${req.body.message}`
     : "No remarks provided."
 }`,
-});
+    });
 
     res.status(200).json({
       success: true,
       message: "Complaint status updated successfully",
       complaint,
     });
-
   } catch (error) {
     console.log("UPDATE STATUS ERROR:", error);
 
@@ -325,6 +320,10 @@ ${
   }
 };
 
+// ==========================================
+// Assign Complaint to Department (Admin)
+// PUT /api/complaints/:id/assign
+// ==========================================
 // ==========================================
 // Assign Complaint to Department (Admin)
 // PUT /api/complaints/:id/assign
@@ -358,7 +357,7 @@ const assignComplaintToDepartment = async (req, res) => {
       });
     }
 
-    complaint.assignedDepartment = departmentId;
+    complaint.assignedDepartment = department._id;
     complaint.status = "Assigned";
 
     await complaint.save();
@@ -375,6 +374,7 @@ const assignComplaintToDepartment = async (req, res) => {
       message: "Complaint assigned successfully",
       complaint,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -382,7 +382,6 @@ const assignComplaintToDepartment = async (req, res) => {
     });
   }
 };
-
 // ==========================================
 // Delete Complaint
 // DELETE /api/complaints/:id
@@ -411,6 +410,7 @@ const deleteComplaint = async (req, res) => {
     });
   }
 };
+
 // ==========================================
 // Department Dashboard
 // GET /api/complaints/department/dashboard
@@ -420,7 +420,6 @@ const getDepartmentDashboard = async (req, res) => {
     console.log("========== Department Dashboard ==========");
     console.log("Logged in User:", req.user);
 
-    // Find department of logged-in officer
     const department = await Department.findOne({
       headOfficer: req.user._id,
     });
@@ -434,21 +433,11 @@ const getDepartmentDashboard = async (req, res) => {
       });
     }
 
-    // Show ALL complaints in database
-    const allComplaints = await Complaint.find();
-
-    console.log("========== ALL COMPLAINTS ==========");
-    console.log(allComplaints);
-
-    // Fetch complaints assigned to this department
     const complaints = await Complaint.find({
       assignedDepartment: department._id,
     })
       .populate("reportedBy", "name")
       .sort({ createdAt: -1 });
-
-    console.log("Department ID:", department._id);
-    console.log("Assigned Complaints:", complaints);
 
     const assigned = complaints.filter(
       (c) => c.status === "Assigned"
@@ -480,7 +469,6 @@ const getDepartmentDashboard = async (req, res) => {
       },
       complaints,
     });
-
   } catch (error) {
     console.log(error);
 
@@ -490,6 +478,7 @@ const getDepartmentDashboard = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   createComplaint,
   getMyComplaints,
