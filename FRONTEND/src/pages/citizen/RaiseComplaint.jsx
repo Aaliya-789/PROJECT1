@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import ComplaintGuidelines from "../../components/citizen/ComplaintGuidelines";
 import { createComplaint } from "../../services/complaintService";
 
+
 const RaiseComplaint = () => {
 
   const navigate = useNavigate();
+
 
   const [formData, setFormData] = useState({
     title: "",
@@ -18,7 +20,10 @@ const RaiseComplaint = () => {
     priority: "Medium",
   });
 
+
   const [images, setImages] = useState([]);
+
+
 
   const handleChange = (e) => {
 
@@ -28,6 +33,8 @@ const RaiseComplaint = () => {
     });
 
   };
+
+
 
   const handleImageChange = (e) => {
   const selectedImages = Array.from(e.target.files);
@@ -45,45 +52,67 @@ const RaiseComplaint = () => {
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  console.log(formData);
+    e.preventDefault();
 
-  if (
-    !formData.title.trim() ||
-    !formData.category ||
-    !formData.description.trim() ||
-    !formData.address.trim() ||
-    (formData.category === "Others" &&
-      !formData.otherCategory.trim())
-  ) {
-    toast.error("Please fill all required fields");
-    return;
-  }
 
-  try {
-    const token = localStorage.getItem("token");
 
-    const complaintData = new FormData();
+    if (
+      !formData.title ||
+      !formData.category ||
+      !formData.description ||
+      !formData.address
+    ) {
 
-    complaintData.append("title", formData.title);
+      toast.error(
+        "Please fill all required fields"
+      );
 
-    complaintData.append(
-      "category",
-      formData.category === "Others"
-        ? formData.otherCategory
-        : formData.category
-    );
+      return;
+    }
 
-    complaintData.append(
-      "description",
-      formData.description
-    );
 
-    complaintData.append(
-      "priority",
-      formData.priority
-    );
+
+    try {
+
+
+      const token =
+        localStorage.getItem("token");
+
+
+
+      const complaintData =
+        new FormData();
+
+
+
+      complaintData.append(
+        "title",
+        formData.title
+      );
+
+
+
+      complaintData.append(
+        "category",
+        formData.category === "Others"
+          ? formData.otherCategory
+          : formData.category
+      );
+
+
+
+      complaintData.append(
+        "description",
+        formData.description
+      );
+
+
+
+      complaintData.append(
+        "priority",
+        formData.priority
+      );
 
 
 
@@ -92,63 +121,97 @@ const RaiseComplaint = () => {
 complaintData.append("latitude", "18.5204");
 complaintData.append("longitude", "73.8567");
 
-    images.forEach((image) => {
-      complaintData.append("images", image);
-    });
 
-    const response = await createComplaint(
-      token,
-      complaintData
-    );
 
-    console.log("Complaint Created:", response);
+      images.forEach((image)=>{
 
-    toast.success(
-      "Complaint submitted successfully"
-    );
+        complaintData.append(
+          "images",
+          image
+        );
 
-    navigate("/citizen/complaint-history");
+      });
 
-  } catch (error) {
-    console.log(error);
 
-    if (error.response) {
-      console.log(error.response.data);
+
+      const response =
+        await createComplaint(
+          token,
+          complaintData
+        );
+
+
+
+      console.log(
+        "Complaint Created:",
+        response
+      );
+
+
+
+      toast.success(
+        "Complaint submitted successfully"
+      );
+
+
+
+      navigate(
+        "/citizen/complaint-history"
+      );
+
+
+
+    } catch(error) {
+
+
+      console.log(
+        "Complaint Error:",
+        error
+      );
+
 
       toast.error(
-        error.response.data.message ||
+        error.response?.data?.message ||
         "Failed to submit complaint"
       );
-    } else {
-      toast.error("Cannot connect to server");
+
     }
-  }
-};
-  
 
   };
+
+
 
   return (
 
     <div className="min-h-screen bg-gray-50 p-6">
 
+
       <div className="max-w-4xl mx-auto">
+
+
 
         <h1 className="text-4xl font-bold text-[#0F172A] mb-6">
           Raise a Complaint
         </h1>
 
+
+
         <ComplaintGuidelines />
+
+
 
         <div className="bg-white rounded-2xl shadow-lg p-8">
 
+
           <form onSubmit={handleSubmit}>
+
 
             <div className="mb-5">
 
               <label className="block font-semibold mb-2">
                 Complaint Title *
               </label>
+
 
               <input
                 type="text"
@@ -160,11 +223,15 @@ complaintData.append("longitude", "73.8567");
 
             </div>
 
+
+
+
             <div className="mb-5">
 
               <label className="block font-semibold mb-2">
                 Category *
               </label>
+
 
               <select
                 name="category"
@@ -191,6 +258,9 @@ complaintData.append("longitude", "73.8567");
 
             </div>
 
+
+
+
             {
               formData.category === "Others" && (
 
@@ -206,11 +276,16 @@ complaintData.append("longitude", "73.8567");
               )
             }
 
+
+
+
+
             <div className="mb-5">
 
               <label className="block font-semibold mb-2">
                 Description *
               </label>
+
 
               <textarea
                 rows="5"
@@ -222,11 +297,16 @@ complaintData.append("longitude", "73.8567");
 
             </div>
 
+
+
+
+
             <div className="mb-5">
 
               <label className="block font-semibold mb-2">
                 Address *
               </label>
+
 
               <input
                 type="text"
@@ -238,11 +318,16 @@ complaintData.append("longitude", "73.8567");
 
             </div>
 
+
+
+
+
             <div className="mb-5">
 
               <label className="block font-semibold mb-2">
                 Priority
               </label>
+
 
               <select
                 name="priority"
@@ -259,6 +344,10 @@ complaintData.append("longitude", "73.8567");
               </select>
 
             </div>
+
+
+
+
 
             <div className="mb-6">
 
@@ -342,14 +431,13 @@ complaintData.append("longitude", "73.8567");
             <button
               type="submit"
               className="
-                w-full
-                bg-teal-500
-                text-white
-                py-3
-                rounded-xl
-                font-semibold
-                hover:bg-teal-600
-                transition
+              w-full
+              bg-teal-500
+              text-white
+              py-3
+              rounded-xl
+              font-semibold
+              hover:bg-teal-600
               "
             >
 
@@ -357,16 +445,22 @@ complaintData.append("longitude", "73.8567");
 
             </button>
 
+
+
           </form>
+
 
         </div>
 
+
       </div>
+
 
     </div>
 
   );
 
-;
+};
+
 
 export default RaiseComplaint;
