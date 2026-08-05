@@ -1,7 +1,6 @@
-// PART 1
+
 import { useEffect, useState } from "react";
 import {
-  FaEye,
   FaTrash,
   FaMapMarkerAlt,
   FaUser,
@@ -31,34 +30,49 @@ const ManageComplaints = () => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem("token");
+ const fetchData = async () => {
+  const token = localStorage.getItem("token");
 
-      const complaintRes = await getAllComplaints(token);
-      const departmentRes = await getDepartments(token);
+  try {
+    const complaintRes = await getAllComplaints(token);
 
-      setComplaints(complaintRes.complaints || []);
-      setDepartments(departmentRes.departments || []);
+    console.log("========== RAW RESPONSE ==========");
+    console.log(complaintRes);
+    console.log("success =", complaintRes.success);
+    console.log("count =", complaintRes.count);
+    console.log("complaints =", complaintRes.complaints);
+    console.log("isArray =", Array.isArray(complaintRes.complaints));
 
-      if (complaintRes.complaints?.length > 0) {
-        setSelectedComplaint(complaintRes.complaints[0]);
-        setStatus(complaintRes.complaints[0].status);
-        setDepartmentId(
-          complaintRes.complaints[0].assignedDepartment?._id || ""
-        );
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+    const complaintList = complaintRes.complaints || [];
+
+    console.log("length =", complaintList.length);
+
+    setComplaints(complaintList);
+
+    if (complaintList.length > 0) {
+      setSelectedComplaint(complaintList[0]);
+      setStatus(complaintList[0].status);
+      setDepartmentId(
+        complaintList[0].assignedDepartment?._id || ""
+      );
     }
-  };
+
+    const departmentRes = await getDepartments(token);
+    setDepartments(departmentRes.departments || []);
+
+  } catch (err) {
+    console.log("ERROR:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleView = (complaint) => {
     setSelectedComplaint(complaint);
     setStatus(complaint.status);
-    setDepartmentId(complaint.assignedDepartment?._id || "");
+    setDepartmentId(
+      complaint.assignedDepartment?._id || ""
+    );
   };
 
   const handleDelete = async (id) => {
@@ -66,11 +80,13 @@ const ManageComplaints = () => {
 
     try {
       const token = localStorage.getItem("token");
+
       await deleteComplaint(token, id);
 
       alert("Complaint deleted successfully");
 
       fetchData();
+
     } catch (err) {
       console.log(err);
       alert("Delete failed");
@@ -98,6 +114,7 @@ const ManageComplaints = () => {
       alert("Complaint updated successfully");
 
       fetchData();
+
     } catch (err) {
       console.log(err);
       alert("Update failed");
@@ -111,8 +128,9 @@ const ManageComplaints = () => {
       </div>
     );
   }
-
-  return (
+  console.log("STATE complaints =", complaints);
+  console.log("STATE length =", complaints.length);
+    return (
     <div className="grid grid-cols-12 gap-6">
 
       {/* LEFT PANEL */}
@@ -120,68 +138,74 @@ const ManageComplaints = () => {
       <div className="col-span-4 bg-white rounded-xl shadow-md p-4">
 
         <h2 className="text-2xl font-bold mb-4">
-          Complaints
+          Complaints ({complaints.length})
         </h2>
 
-        <div className="space-y-3">
+        {complaints.length === 0 ? (
+          <p className="text-gray-500">
+            No complaints found.
+          </p>
+        ) : (
 
-          {complaints.map((complaint) => (
+          <div className="space-y-3">
 
-            <div
-              key={complaint._id}
-              onClick={() => handleView(complaint)}
-              className={`cursor-pointer rounded-lg border p-4 transition
-              ${
-                selectedComplaint?._id === complaint._id
-                  ? "border-blue-500 bg-blue-50"
-                  : "hover:bg-gray-50"
-              }`}
-            >
+            {complaints.map((complaint) => (
 
-              <div className="flex justify-between">
+              <div
+                key={complaint._id}
+                onClick={() => handleView(complaint)}
+                className={`cursor-pointer rounded-lg border p-4 transition ${
+                  selectedComplaint?._id === complaint._id
+                    ? "border-blue-500 bg-blue-50"
+                    : "hover:bg-gray-50"
+                }`}
+              >
 
-                <h3 className="font-semibold">
-                  {complaint.title}
-                </h3>
+                <div className="flex justify-between items-center">
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(complaint._id);
-                  }}
-                  className="text-red-600"
+                  <h3 className="font-semibold">
+                    {complaint.title}
+                  </h3>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(complaint._id);
+                    }}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <FaTrash />
+                  </button>
+
+                </div>
+
+                <p className="text-sm text-gray-500 mt-2">
+                  {complaint.category}
+                </p>
+
+                <span
+                  className={`inline-block mt-3 px-3 py-1 rounded-full text-xs text-white ${
+                    complaint.status === "Resolved"
+                      ? "bg-green-600"
+                      : complaint.status === "In Progress"
+                      ? "bg-blue-600"
+                      : complaint.status === "Assigned"
+                      ? "bg-purple-600"
+                      : complaint.status === "Rejected"
+                      ? "bg-red-600"
+                      : "bg-yellow-500"
+                  }`}
                 >
-                  <FaTrash />
-                </button>
+                  {complaint.status}
+                </span>
 
               </div>
 
-              <p className="text-sm text-gray-500 mt-1">
-                {complaint.category}
-              </p>
+            ))}
 
-              <span
-                className={`inline-block mt-3 px-3 py-1 rounded-full text-xs text-white
-                ${
-                  complaint.status === "Resolved"
-                    ? "bg-green-600"
-                    : complaint.status === "In Progress"
-                    ? "bg-blue-600"
-                    : complaint.status === "Assigned"
-                    ? "bg-purple-600"
-                    : complaint.status === "Rejected"
-                    ? "bg-red-600"
-                    : "bg-yellow-500"
-                }`}
-              >
-                {complaint.status}
-              </span>
+          </div>
 
-            </div>
-
-          ))}
-
-        </div>
+        )}
 
       </div>
 
@@ -189,7 +213,13 @@ const ManageComplaints = () => {
 
       <div className="col-span-8 bg-white rounded-xl shadow-md p-6">
 
-        {selectedComplaint && (
+        {!selectedComplaint ? (
+
+          <div className="text-center text-gray-500 mt-20">
+            Select a complaint
+          </div>
+
+        ) : (
 
           <>
             <h2 className="text-3xl font-bold mb-6">
@@ -201,14 +231,14 @@ const ManageComplaints = () => {
               <div className="flex items-center gap-2">
                 <FaUser />
                 <span>
-                  {selectedComplaint.reportedBy?.name}
+                  {selectedComplaint.reportedBy?.name || "N/A"}
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
                 <FaEnvelope />
                 <span>
-                  {selectedComplaint.reportedBy?.email}
+                  {selectedComplaint.reportedBy?.email || "N/A"}
                 </span>
               </div>
 
@@ -247,24 +277,22 @@ const ManageComplaints = () => {
             <p className="text-gray-700 mb-6">
               {selectedComplaint.description}
             </p>
-                        <h3 className="font-semibold text-lg mb-3">
+
+            <h3 className="font-semibold text-lg mb-3">
               Images
             </h3>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
 
-              {selectedComplaint.images &&
-              selectedComplaint.images.length > 0 ? (
+              {selectedComplaint.images?.length > 0 ? (
 
                 selectedComplaint.images.map((image, index) => (
-
                   <img
                     key={index}
                     src={image}
                     alt="Complaint"
                     className="w-full h-64 object-cover rounded-lg border"
                   />
-
                 ))
 
               ) : (
@@ -276,8 +304,7 @@ const ManageComplaints = () => {
               )}
 
             </div>
-
-            <div className="grid grid-cols-2 gap-6">
+                        <div className="grid grid-cols-2 gap-6">
 
               <div>
 
@@ -287,25 +314,20 @@ const ManageComplaints = () => {
 
                 <select
                   value={departmentId}
-                  onChange={(e) =>
-                    setDepartmentId(e.target.value)
-                  }
+                  onChange={(e) => setDepartmentId(e.target.value)}
                   className="border rounded-lg p-2 w-full"
                 >
-
                   <option value="">
                     Select Department
                   </option>
 
                   {departments.map((department) => (
-
                     <option
                       key={department._id}
                       value={department._id}
                     >
                       {department.departmentName}
                     </option>
-
                   ))}
 
                 </select>
@@ -320,36 +342,15 @@ const ManageComplaints = () => {
 
                 <select
                   value={status}
-                  onChange={(e) =>
-                    setStatus(e.target.value)
-                  }
+                  onChange={(e) => setStatus(e.target.value)}
                   className="border rounded-lg p-2 w-full"
                 >
-
-                  <option value="Submitted">
-                    Submitted
-                  </option>
-
-                  <option value="Under Review">
-                    Under Review
-                  </option>
-
-                  <option value="Assigned">
-                    Assigned
-                  </option>
-
-                  <option value="In Progress">
-                    In Progress
-                  </option>
-
-                  <option value="Resolved">
-                    Resolved
-                  </option>
-
-                  <option value="Rejected">
-                    Rejected
-                  </option>
-
+                  <option value="Submitted">Submitted</option>
+                  <option value="Under Review">Under Review</option>
+                  <option value="Assigned">Assigned</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                  <option value="Rejected">Rejected</option>
                 </select>
 
               </div>
@@ -366,9 +367,7 @@ const ManageComplaints = () => {
               </button>
 
               <button
-                onClick={() =>
-                  handleDelete(selectedComplaint._id)
-                }
+                onClick={() => handleDelete(selectedComplaint._id)}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
               >
                 Delete Complaint
@@ -377,15 +376,12 @@ const ManageComplaints = () => {
             </div>
 
           </>
-
         )}
 
       </div>
 
     </div>
-
   );
-
 };
 
 export default ManageComplaints;

@@ -628,9 +628,7 @@ className="border-b"
 
 
 <td className="p-3">
-
-{department.complaints || 0}
-
+  {department.complaintCount || 0}
 </td>
 
 
