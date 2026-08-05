@@ -37,12 +37,17 @@ const RaiseComplaint = () => {
 
 
   const handleImageChange = (e) => {
+  const selectedImages = Array.from(e.target.files);
 
-    setImages(
-      Array.from(e.target.files)
-    );
+  const totalImages = [...images, ...selectedImages];
 
-  };
+  if (totalImages.length > 5) {
+    toast.error("Maximum 5 images allowed");
+    return;
+  }
+
+  setImages(totalImages);
+};
 
 
 
@@ -112,24 +117,9 @@ const RaiseComplaint = () => {
 
 
       // Backend expects location object
-      complaintData.append(
-        "location[address]",
-        formData.address
-      );
-
-
-
-      complaintData.append(
-        "location[latitude]",
-        "18.5204"
-      );
-
-
-
-      complaintData.append(
-        "location[longitude]",
-        "73.8567"
-      );
+      complaintData.append("address", formData.address);
+complaintData.append("latitude", "18.5204");
+complaintData.append("longitude", "73.8567");
 
 
 
@@ -361,19 +351,78 @@ const RaiseComplaint = () => {
 
             <div className="mb-6">
 
-              <label className="block font-semibold mb-2">
-                Upload Images
-              </label>
+  <label className="block font-semibold mb-2">
+    Upload Images
+  </label>
 
+  <label
+    className="
+      inline-flex
+      items-center
+      gap-2
+      bg-teal-500
+      text-white
+      px-5
+      py-3
+      rounded-xl
+      cursor-pointer
+      hover:bg-teal-600
+      transition
+      font-semibold
+    "
+  >
+    📁 Choose Files
 
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageChange}
-              />
+    <input
+      type="file"
+      multiple
+      accept="image/*"
+      onChange={handleImageChange}
+      className="hidden"
+      disabled={images.length >= 5}
+    />
+  </label>
 
-            </div>
+  <p className="mt-2 text-sm text-gray-500">
+    {images.length}/5 images selected
+  </p>
+
+  {images.length > 0 && (
+    <div className="mt-4 bg-gray-50 border rounded-xl p-4">
+
+      <p className="font-semibold text-gray-700 mb-2">
+        Selected Files
+      </p>
+
+      <div className="space-y-2">
+
+        {images.map((image, index) => (
+
+          <div
+            key={index}
+            className="flex justify-between items-center bg-white border rounded-lg px-3 py-2"
+          >
+
+            <span>📷 {image.name}</span>
+
+            <button
+              type="button"
+              onClick={() => removeImage(index)}
+              className="text-red-500 hover:text-red-700 font-semibold"
+            >
+              Remove
+            </button>
+
+          </div>
+
+        ))}
+
+      </div>
+
+    </div>
+  )}
+
+</div>
 
 
 
