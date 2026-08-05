@@ -167,13 +167,8 @@ const getAllComplaints = async (req, res) => {
 
     const filter = {};
 
-    if (status) {
-      filter.status = status;
-    }
-
-    if (category) {
-      filter.category = category;
-    }
+    if (status) filter.status = status;
+    if (category) filter.category = category;
 
     if (search) {
       filter.$or = [
@@ -203,6 +198,10 @@ const getAllComplaints = async (req, res) => {
       .populate("assignedDepartment", "departmentName")
       .sort({ createdAt: -1 });
 
+    console.log("========== ADMIN FETCHED COMPLAINTS ==========");
+    console.log("Count:", complaints.length);
+    console.log(complaints);
+
     res.status(200).json({
       success: true,
       count: complaints.length,
@@ -210,6 +209,8 @@ const getAllComplaints = async (req, res) => {
     });
 
   } catch (error) {
+    console.log("GET ALL COMPLAINTS ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,

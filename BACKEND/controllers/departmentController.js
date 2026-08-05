@@ -39,28 +39,37 @@ const createDepartment = async (req, res) => {
 
 const getDepartments = async (req, res) => {
   try {
-
     const departments = await Department.find()
       .populate("headOfficer", "name email");
 
+    const departmentsWithCounts = await Promise.all(
+      departments.map(async (department) => {
+        const complaintCount = await Complaint.countDocuments({
+          assignedDepartment: department._id,
+        });
+
+        return {
+          ...department.toObject(),
+          complaintCount,
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
-      count: departments.length,
-      departments,
+      count: departmentsWithCounts.length,
+      departments: departmentsWithCounts,
     });
 
   } catch (error) {
-
     console.error(error);
 
     res.status(500).json({
       success: false,
       message: error.message,
     });
-
   }
 };
-
 
 // ==========================================
 // Update Department
