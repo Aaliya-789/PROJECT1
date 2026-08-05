@@ -30,7 +30,6 @@ const RaiseComplaint = () => {
   };
 
   const handleImageChange = (e) => {
-
   const selectedImages = Array.from(e.target.files);
 
   const totalImages = [...images, ...selectedImages];
@@ -41,15 +40,9 @@ const RaiseComplaint = () => {
   }
 
   setImages(totalImages);
-
 };
-const removeImage = (index) => {
 
-  setImages(
-    images.filter((_, i) => i !== index)
-  );
 
-};
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -92,20 +85,12 @@ const removeImage = (index) => {
       formData.priority
     );
 
-    complaintData.append(
-      "address",
-      formData.address
-    );
 
-    complaintData.append(
-      "latitude",
-      "18.5204"
-    );
 
-    complaintData.append(
-      "longitude",
-      "73.8567"
-    );
+      // Backend expects location object
+      complaintData.append("address", formData.address);
+complaintData.append("latitude", "18.5204");
+complaintData.append("longitude", "73.8567");
 
     images.forEach((image) => {
       complaintData.append("images", image);
@@ -277,85 +262,82 @@ const removeImage = (index) => {
 
             <div className="mb-6">
 
-              <label className="block font-semibold mb-2">
-                Upload Images
-              </label>
+  <label className="block font-semibold mb-2">
+    Upload Images
+  </label>
 
-              <label
-                className="
-                  inline-flex
-                  items-center
-                  gap-2
-                  bg-teal-500
-                  text-white
-                  px-5
-                  py-3
-                  rounded-xl
-                  cursor-pointer
-                  hover:bg-teal-600
-                  transition
-                  font-semibold
-                "
-              >
-                📁 Choose Files
-<p className="mt-2 text-sm text-gray-500">
-  {images.length}/5 images selected
-</p>
-                <input
-  type="file"
-  multiple
-  accept="image/*"
-  onChange={handleImageChange}
-  className="hidden"
-  disabled={images.length >= 5}
-/>
+  <label
+    className="
+      inline-flex
+      items-center
+      gap-2
+      bg-teal-500
+      text-white
+      px-5
+      py-3
+      rounded-xl
+      cursor-pointer
+      hover:bg-teal-600
+      transition
+      font-semibold
+    "
+  >
+    📁 Choose Files
 
-              </label>
+    <input
+      type="file"
+      multiple
+      accept="image/*"
+      onChange={handleImageChange}
+      className="hidden"
+      disabled={images.length >= 5}
+    />
+  </label>
 
-              {
-                images.length > 0 && (
+  <p className="mt-2 text-sm text-gray-500">
+    {images.length}/5 images selected
+  </p>
 
-                  <div className="mt-4 bg-gray-50 border rounded-xl p-4">
+  {images.length > 0 && (
+    <div className="mt-4 bg-gray-50 border rounded-xl p-4">
 
-                    <p className="font-semibold text-gray-700 mb-2">
-                      Selected Files
-                    </p>
+      <p className="font-semibold text-gray-700 mb-2">
+        Selected Files
+      </p>
 
-                    <ul className="space-y-2">
+      <div className="space-y-2">
 
-                      {
-  images.map((image, index) => (
+        {images.map((image, index) => (
 
-    <div
-      key={index}
-      className="flex justify-between items-center bg-white border rounded-lg px-3 py-2"
-    >
+          <div
+            key={index}
+            className="flex justify-between items-center bg-white border rounded-lg px-3 py-2"
+          >
 
-      <span>
-        📷 {image.name}
-      </span>
+            <span>📷 {image.name}</span>
 
-      <button
-        type="button"
-        onClick={() => removeImage(index)}
-        className="text-red-500 hover:text-red-700 font-semibold"
-      >
-        Remove
-      </button>
+            <button
+              type="button"
+              onClick={() => removeImage(index)}
+              className="text-red-500 hover:text-red-700 font-semibold"
+            >
+              Remove
+            </button>
+
+          </div>
+
+        ))}
+
+      </div>
 
     </div>
+  )}
 
-  ))
-}
+</div>
 
-                    </ul>
 
-                  </div>
 
-                )
-              }
 
-            </div>
 
             <button
               type="submit"
