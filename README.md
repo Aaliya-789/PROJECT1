@@ -1,4 +1,4 @@
-# 🏙️ Civic Connect
+#  Civic Connect
 
 ### Connecting Citizens, Building Better Communities.
 
